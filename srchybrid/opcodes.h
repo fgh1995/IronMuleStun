@@ -18,7 +18,7 @@
 
 //Xman
 //ModID
-#define MOD_VERSION		_T("Iron STUN 0.1") 
+#define MOD_VERSION		_T("Iron STUN 0.1.1") 
 
 //Xman versions check
 #define MOD_MAIN_VER	0
