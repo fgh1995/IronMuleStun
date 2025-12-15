@@ -828,6 +828,12 @@
     <ClCompile Include="UPnPManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="udp.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stun.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="MD4_asm.asm">
@@ -2515,6 +2521,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UPnPManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="udp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

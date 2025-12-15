@@ -83,6 +83,7 @@ public:
 						  CMap<uint32, uint32, uint32, uint32>& clientVersionAMule);
 	uint32	GetClientCount()	{ return list.GetCount();}
 	void	DeleteAll();
+	void    DisconnectAllTransfers();
 	bool	AttachToAlreadyKnown(CUpDownClient** client, CClientReqSocket* sender);
 #ifdef USE_IP_6 // NEO: IP6 - [IPv6]
 	CUpDownClient* FindClientByIP(const CAddress& IP, UINT port) const;

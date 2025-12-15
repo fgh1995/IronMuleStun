@@ -75,6 +75,8 @@ public:
 	void ShowTransferRate(bool forceAll=false);
     void ShowPing();
 	void Localize();
+	void StartConnection();
+	void CloseConnection();
 
 #ifdef HAVE_WIN7_SDK_H
 	void UpdateStatusBarProgress();
@@ -208,9 +210,6 @@ protected:
 	// UPnP TimeOutTimer
 	UINT_PTR m_hUPnPTimeOutTimer;
 	static void CALLBACK UPnPTimeOutTimer(HWND hwnd, UINT uiMsg, UINT idEvent, DWORD dwTime);
-
-	void StartConnection();
-	void CloseConnection();
 	void MinimizeWindow();
 	void PostStartupMinimized();
 	void UpdateTrayIcon(int iPercent);

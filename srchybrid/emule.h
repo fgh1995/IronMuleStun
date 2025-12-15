@@ -22,6 +22,7 @@
 #include "Neo/NeoConfig.h"
 #include "Neo/Address.h"
 #include <UPnPManager.h>
+#include <cstdint>
 
 #define	DEFAULT_NICK		thePrefs.GetHomepageBaseURL()
 #define	DEFAULT_TCP_PORT_OLD	4662
@@ -118,7 +119,7 @@ public:
 	CMutex				hashing_mut;
 	CString*			pstrPendingLink;
 	COPYDATASTRUCT		sendstruct;
-
+	BOOL                needReboot;
 // Implementierung
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
@@ -200,7 +201,16 @@ public:
     // Elandal:ThreadSafeLogging <--
 
 	bool			DidWeAutoStart() { return m_bAutoStart; }
-	bool            IsReboot;
+	void            StartStunCheck();
+	void 			StopStunCheck(); 
+	static DWORD WINAPI    StunCheckThread(LPVOID lpParam);
+	void            CheckStunMapping();
+	HANDLE          m_hStunCheckThread;        // 线程句柄
+	volatile bool   m_bStunCheckRunning; // 建议用volatile
+	void HandleStunDetectionResult(const std::string& currentPublicIP,
+		uint16_t currentPublicPort, uint16_t localPort);
+	void RebootEmule();
+	void HandleStunUDPDetectionResult(const std::string& currentPublicIP, uint16_t currentPublicPort, uint16_t localPort);
 protected:
 	bool ProcessCommandline();
 	void SetTimeOnTransfer();

@@ -317,7 +317,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='BETA|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="StringConversion.cpp" />
+    <ClCompile Include="stun.cxx" />
     <ClCompile Include="TimeTick.cpp" />
+    <ClCompile Include="udp.cxx" />
     <ClCompile Include="UDPSocket.cpp" />
     <ClCompile Include="UploadBandwidthThrottler.cpp" />
     <ClCompile Include="UploadClient.cpp" />
@@ -894,9 +896,11 @@
     <ClInclude Include="Statistics.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="StringConversion.h" />
+    <ClInclude Include="stun.h" />
     <ClInclude Include="ThrottledSocket.h" />
     <ClInclude Include="TimeTick.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="udp.h" />
     <ClInclude Include="UDPSocket.h" />
     <ClInclude Include="UpdownClient.h" />
     <ClInclude Include="UploadBandwidthThrottler.h" />

@@ -210,7 +210,51 @@ void CClientList::DeleteAll(){
 		delete cur_client; // recursiv: this will call RemoveClient
 	}
 }
+void CClientList::DisconnectAllTransfers()
+{
+	// 收集要删除的客户端
+	CSimpleArray<CUpDownClient*> clientsToDelete;
 
+	POSITION pos1, pos2;
+	for (pos1 = list.GetHeadPosition(); (pos2 = pos1) != NULL; )
+	{
+		list.GetNext(pos1);
+		CUpDownClient* cur_client = list.GetAt(pos2);
+
+		bool hasTransfer = false;
+
+		// 检查是否有上传状态
+		if (cur_client->GetUploadState() == US_UPLOADING ||
+			cur_client->GetUploadState() == US_ONUPLOADQUEUE)
+		{
+			hasTransfer = true;
+		}
+
+		// 检查是否有下载状态
+		if (cur_client->GetDownloadState() == DS_DOWNLOADING ||
+			cur_client->GetDownloadState() == DS_CONNECTED ||
+			cur_client->GetDownloadState() == DS_REMOTEQUEUEFULL ||
+			cur_client->GetDownloadState() == DS_ONQUEUE)
+		{
+			hasTransfer = true;
+		}
+
+		if (hasTransfer)
+		{
+			clientsToDelete.Add(cur_client);
+		}
+	}
+
+	// 删除所有有传输的客户端
+	for (int i = 0; i < clientsToDelete.GetSize(); i++)
+	{
+		// 这会从UI和list中移除
+		RemoveClient(clientsToDelete[i], _T("DisconnectAllTransfers"));
+	}
+	DeleteAll();
+	// 刷新已知列表UI
+	theApp.emuledlg->transferwnd->GetClientList()->ShowKnownClients();
+}
 bool CClientList::AttachToAlreadyKnown(CUpDownClient** client, CClientReqSocket* sender){
 	POSITION pos1, pos2;
 	CUpDownClient* tocheck = (*client);

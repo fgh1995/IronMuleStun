@@ -93,6 +93,7 @@ CStringA CPreferences::m_strBindAddrA;
 LPCWSTR	CPreferences::m_pszBindAddrW;
 CStringW CPreferences::m_strBindAddrW;
 uint16	CPreferences::lastStunLocalPort;
+uint16	CPreferences::lastStunLocalUDPPort;
 uint16	CPreferences::port;
 uint16	CPreferences::udpport;
 uint16	CPreferences::nServerUDPPort;
@@ -1584,6 +1585,7 @@ void CPreferences::SavePreferences()
 	ini.WriteInt(L"MaxHalfConnections",maxhalfconnections);
 	ini.WriteBool(L"ConditionalTCPAccept", m_bConditionalTCPAccept);
 	ini.WriteInt(L"LastStunLocalPort", lastStunLocalPort);
+	ini.WriteInt(L"LastStunLocalUDPPort", lastStunLocalUDPPort);
 	ini.WriteInt(L"Port",port);
 	ini.WriteInt(L"UDPPort",udpport);
 	ini.WriteInt(L"ServerUDPPort", nServerUDPPort);

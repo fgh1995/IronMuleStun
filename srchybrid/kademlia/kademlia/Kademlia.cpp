@@ -48,7 +48,11 @@ there client on the eMule forum..
 #include "../utils/KadUDPKey.h"
 #include "../utils/KadClientSearcher.h"
 #include "../kademlia/tag.h"
-
+#include <cstdint>
+#include <WinTcpStun.h>
+#include "DownloadQueue.h"
+#include "PartFile.h"
+#include "ClientList.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -74,7 +78,6 @@ bool		CKademlia::m_bRunning = false;
 bool		CKademlia::m_bLANMode = false;
 CList<uint32, uint32> CKademlia::m_liStatsEstUsersProbes;
 _ContactList CKademlia::s_liBootstapList;
-
 CKademlia::CKademlia()
 {}
 
@@ -102,7 +105,7 @@ void CKademlia::Start(CPrefs *pPrefs)
 			return;
 
 		AddDebugLogLine(false, _T("Starting Kademlia"));
-
+		
 		// Init jump start timer.
 		m_tNextSearchJumpStart = time(NULL);
 		// Force a FindNodeComplete within the first 3 minutes.

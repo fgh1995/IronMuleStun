@@ -15,8 +15,7 @@
 //along with this program; if not, write to the Free Software
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #pragma once
-#include <string>
-#include <cstdint>
+
 #define CS_FATALERROR	-5
 #define CS_DISCONNECTED	-4
 #define CS_SERVERDEAD	-3
@@ -48,7 +47,6 @@ public:
 	void	ConnectToAnyServer() { ConnectToAnyServer(0, true, true); }
 	void	ConnectToAnyServer(UINT startAt, bool prioSort = false, bool isAuto = true, bool bNoCrypt = false);
 	void	ConnectToServer(CServer* toconnect, bool multiconnect = false, bool bNoCrypt = false);
-	void HandleStunDetectionResult(const std::string& currentPublicIP, uint16_t currentPublicPort, uint16_t localPort);
 	void	StopConnectionTry();
 	static  VOID CALLBACK RetryConnectTimer(HWND hWnd, UINT nMsg, UINT nId, DWORD dwTime);
 
@@ -78,10 +76,7 @@ public:
 
 	bool	AwaitingTestFromIP(uint32 dwIP) const;
 	bool	IsConnectedObfuscated() const;
-	static DWORD WINAPI StunCheckThread(LPVOID lpParam);
-	void StartStunCheck();
-	void StopStunCheck();
-	void CheckStunMapping();
+
 private:
 	bool	connecting;
 	bool	singleconnecting;
@@ -95,9 +90,4 @@ private:
 	UINT	m_idRetryTimer;
 	uint32	m_nLocalIP;
 	CMap<ULONG, ULONG, CServerSocket*, CServerSocket*> connectionattemps;
-	HANDLE m_hStunCheckThread;
-	bool m_bStunCheckRunning;
-	uint16_t m_lastLocalPort;
-	std::string m_lastPublicIP;
-	uint16_t m_lastPublicPort;
 };

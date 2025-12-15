@@ -100,6 +100,7 @@ public:
 	static	LPCWSTR	m_pszBindAddrW;
 	static	CStringW m_strBindAddrW;
 	static	uint16	lastStunLocalPort;
+	static	uint16	lastStunLocalUDPPort;
 	static	uint16	port;
 	static	uint16	udpport;
 	static	uint16	nServerUDPPort;

@@ -35,8 +35,6 @@
 #include "ServerWnd.h"
 #include "TaskbarNotifier.h"
 #include "Log.h"
-#include "WinTcpStun.h"
-#include <MenuCmds.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -136,195 +134,17 @@ void CServerConnect::ConnectToServer(CServer* server, bool multiconnect, bool bN
 		StopConnectionTry();
 		Disconnect();
 	}
-	
-	CTcpStunClient stunClient;
-	std::string publicIP;
-	uint16_t publicPort = 0;
-	// 执行UPnP操作
-	if (stunClient.DoTcpStun("stun.voipia.net", 3478, publicIP, publicPort, m_lastLocalPort)) {
-		CString stunResult;
-		stunResult.Format(_T("获取映射关系完毕:%d -> 公网IP端口: %s:%d"),
-			m_lastLocalPort, CString(publicIP.c_str()), publicPort);
-		theApp.QueueLogLineEx(LOG_SUCCESS, stunResult);
-		if (!theApp.m_UPnPManager.isInitialized()) {
-			LogError(_T("UPNP: 找不到UPNP设备"));
-		}
-		else {
-			if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalPort, "TCP"))
-			{
-				theApp.QueueLogLineEx(LOG_SUCCESS, L"删除映射成功，端口:%d", thePrefs.lastStunLocalPort);
-			}
-			else {
-				theApp.QueueLogLineEx(LOG_SUCCESS, L"删除映射失败，端口:%d", thePrefs.lastStunLocalPort);
-			}
-			
-			if (theApp.m_UPnPManager.AddPortMapping(publicPort, m_lastLocalPort, "TCP", "eMule TCP(STUN)")) {
-				theApp.QueueLogLineEx(LOG_SUCCESS, L"映射成功:%d -> 公网IP端口: %s:%d", m_lastLocalPort, CString(publicIP.c_str()), publicPort);
-				// 保存最后一次STUN穿透发起的本地端口,用于删除之前的映射
-				thePrefs.lastStunLocalPort = m_lastLocalPort;
-				thePrefs.Save();
-			}
-			else {
-				LogError(L"映射失败:%d -> 公网IP端口: %s:%d", m_lastLocalPort, CString(publicIP.c_str()), publicPort);
-			}
-			// 检查映射关系是否有变化，如果发生了变化则重启骡子
-			if (m_lastPublicIP != publicIP || m_lastPublicPort != publicPort)
-			{
-				if (!theApp.IsPortchangeAllowed())
-				{
-					StopStunCheck();
-					AfxMessageBox(GetResString(IDS_NOPORTCHANGEPOSSIBLE));
-					// 设置重启标志为真,用于关闭骡子时,判断是否重启一个进程
-					theApp.IsReboot = true;
-					LogError(L"正在自动重启...");
-					theApp.emuledlg->PostMessage(WM_COMMAND, MP_EXIT, 0);
-					return;
-				}
-			}
-			theApp.QueueLogLineEx(LOG_SUCCESS, L"修改监听端口:%d 为:%d", thePrefs.port, publicPort);
-			thePrefs.port = publicPort;
-			theApp.listensocket->Rebind();
-			theApp.QueueLogLineEx(LOG_SUCCESS, L"开始监听新端口:%d",publicPort);
-			theApp.QueueLogLineEx(LOG_SUCCESS, L"TCP STUN穿透完成：如果你的网络环境为全锥型，则应该能获得高ID。");
-			// 保存公网IP端口用于后续STUN检测
-			m_lastPublicIP = publicIP;
-			m_lastPublicPort = publicPort;
-		}
-	}
-	else {
-		theApp.QueueLogLineEx(LOG_SUCCESS, L"TCP STUN穿透失败！");
-	}
 	connecting = true;
 	singleconnecting = !multiconnect;
 	theApp.emuledlg->ShowConnectionState();
+
 	CServerSocket* newsocket = new CServerSocket(this, !multiconnect);
 	m_lstOpenSockets.AddTail((void*&)newsocket);
-	//由于STUN穿透端口是否变化部分需要使用同一个端口发起检测,因此第五个参数赋值为真,允许端口重用
-	newsocket->Create(m_lastLocalPort, SOCK_STREAM, FD_READ | FD_WRITE | FD_CLOSE | FD_CONNECT, thePrefs.GetBindAddrA(),true);
+	newsocket->Create(0, SOCK_STREAM, FD_READ | FD_WRITE | FD_CLOSE | FD_CONNECT, thePrefs.GetBindAddrA());
 	newsocket->ConnectTo(server, bNoCrypt);
 	connectionattemps.SetAt(GetTickCount(), newsocket);
-	StartStunCheck();
-}
-// 启动STUN检查线程
-void CServerConnect::StartStunCheck()
-{
-	if (m_bStunCheckRunning) {
-		return;
-	}
-	m_bStunCheckRunning = true;
-	m_hStunCheckThread = CreateThread(NULL, 0, StunCheckThread, this, 0, NULL);
-	if (m_hStunCheckThread == NULL) {
-		m_bStunCheckRunning = false;
-		LogError(_T("无法创建STUN检查线程"));
-	}
-	else {
-		theApp.QueueLogLineEx(LOG_SUCCESS, L"启动STUN映射关系检查线程");
-	}
 }
 
-// 停止STUN检查线程
-void CServerConnect::StopStunCheck()
-{
-	if (m_bStunCheckRunning) {
-		m_bStunCheckRunning = false;
-		if (m_hStunCheckThread) {
-			WaitForSingleObject(m_hStunCheckThread, 5000);
-			CloseHandle(m_hStunCheckThread);
-			m_hStunCheckThread = NULL;
-		}
-		theApp.QueueLogLineEx(LOG_SUCCESS, L"停止STUN映射关系检查线程");
-	}
-}
-
-// STUN检查线程函数
-DWORD WINAPI CServerConnect::StunCheckThread(LPVOID lpParam)
-{
-	CServerConnect* pThis = static_cast<CServerConnect*>(lpParam);
-
-	while (pThis->m_bStunCheckRunning) {
-		// 每10秒检查一次
-		Sleep(10000);
-
-		if (!pThis->m_bStunCheckRunning) {
-			break;
-		}
-
-		pThis->CheckStunMapping();
-	}
-
-	return 0;
-}
-
-// 检查STUN映射关系
-void CServerConnect::CheckStunMapping()
-{
-	if (!m_bStunCheckRunning || m_lastLocalPort == 0) {
-		return;
-	}
-
-	// 检查服务器连接状态
-	if (!connectedsocket || !connectedsocket->IsConnected()) {
-		theApp.QueueLogLineEx(LOG_WARNING, L"服务器连接已断开，停止STUN检测");
-		StopStunCheck();
-		return;
-	}
-
-	CTcpStunClient stunClient;
-	std::string currentPublicIP;
-	uint16_t currentPublicPort = 0;
-
-	theApp.QueueLogLineEx(LOG_DEBUG, L"开始STUN检测，使用本地端口: %d", m_lastLocalPort);
-
-	// 使用独立的socket但绑定到同一个本地端口进行STUN检测
-	if (stunClient.DoTcpStunWithSamePort(m_lastLocalPort, "stun.voipia.net", 3478,
-		currentPublicIP, currentPublicPort)) {
-		// 处理检测结果
-		HandleStunDetectionResult(currentPublicIP, currentPublicPort, m_lastLocalPort);
-	}
-	else {
-		theApp.QueueLogLineEx(LOG_WARNING, L"STUN检测失败，本地端口: %d", m_lastLocalPort);
-
-		// 如果连续多次失败，可能需要重新进行完整的STUN穿透
-		static int failedCount = 0;
-		failedCount++;
-		if (failedCount >= 3) {
-			theApp.QueueLogLineEx(LOG_WARNING, L"STUN检测连续失败 %d 次，可能需要重新穿透", failedCount);
-			failedCount = 0;
-		}
-	}
-}
-
-void CServerConnect::HandleStunDetectionResult(const std::string& currentPublicIP,
-	uint16_t currentPublicPort, uint16_t localPort)
-{
-	if (m_lastPublicPort == 0)
-	{
-		theApp.QueueLogLineEx(LOG_WARNING, L"检测STUN穿透异常:上一次公网端口为0，无法进行比对! %d", m_lastPublicPort);
-		return;
-	}
-	// 检查映射关系是否有变化
-	if (currentPublicIP != m_lastPublicIP || currentPublicPort != m_lastPublicPort) {
-		CString changeMsg;
-		changeMsg.Format(_T("STUN映射关系发生变化: %s:%d -> %s:%d (本地端口:%d)"),
-			CString(m_lastPublicIP.c_str()), m_lastPublicPort,
-			CString(currentPublicIP.c_str()), currentPublicPort, localPort);
-		LogError(changeMsg);
-		// 设置重启标志为真,用于关闭骡子时,判断是否重启一个进程
-		theApp.IsReboot = true;
-		LogError(L"正在自动重启...");
-		// 设置自动连接为真 即 启动后就开始连接服务器以达到重启后自动连接的功能
-		thePrefs.autoconnect = true;
-		thePrefs.Save();
-		theApp.emuledlg->PostMessage(WM_COMMAND, MP_EXIT, 0);
-	}
-	else {
-		// 映射关系稳定
-		theApp.QueueLogLineEx(LOG_SUCCESS,
-			L"STUN映射关系稳定:%d -> %s:%d",
-			localPort,
-			CString(currentPublicIP.c_str()), currentPublicPort);
-	}
-}
 void CServerConnect::StopConnectionTry()
 {
 	connectionattemps.RemoveAll();
@@ -667,12 +487,7 @@ bool CServerConnect::Disconnect()
 }
 
 CServerConnect::CServerConnect()
-{   
-	// 添加STUN相关成员变量的初始化
-	m_hStunCheckThread = NULL;
-	m_bStunCheckRunning = false;
-	m_lastLocalPort = 0;
-	m_lastPublicPort = 0;
+{
 	connectedsocket = NULL;
 	max_simcons = (thePrefs.IsSafeServerConnectEnabled()) ? 1 : 2;
 	connecting = false;

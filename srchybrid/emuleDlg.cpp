@@ -1784,16 +1784,23 @@ bool CemuleDlg::CanClose()
 
 void CemuleDlg::OnClose()
 {
-	if (!theApp.IsReboot && !CanClose())
+	if (!theApp.needReboot && !CanClose())
 		return;
 
 	Log(_T("Closing eMule"));
 	if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalPort, "TCP"))
 	{
-		theApp.QueueLogLineEx(LOG_SUCCESS, L"É¾³ýÓ³Éä³É¹¦£¬¶Ë¿Ú:%d", thePrefs.lastStunLocalPort);
+		theApp.QueueLogLineEx(LOG_SUCCESS, L"É¾³ýTCPÓ³Éä³É¹¦£¬¶Ë¿Ú:%d", thePrefs.lastStunLocalPort);
 	}
 	else {
-		theApp.QueueLogLineEx(LOG_SUCCESS, L"É¾³ýÓ³ÉäÊ§°Ü£¬¶Ë¿Ú:%d", thePrefs.lastStunLocalPort);
+		theApp.QueueLogLineEx(LOG_SUCCESS, L"É¾³ýTCPÓ³ÉäÊ§°Ü£¬¶Ë¿Ú:%d", thePrefs.lastStunLocalPort);
+	}
+	if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalUDPPort, "UDP"))
+	{
+		theApp.QueueLogLineEx(LOG_SUCCESS, L"É¾³ýUDPÓ³Éä³É¹¦£¬¶Ë¿Ú:%d", thePrefs.lastStunLocalUDPPort);
+	}
+	else {
+		theApp.QueueLogLineEx(LOG_SUCCESS, L"É¾³ýUDPÓ³ÉäÊ§°Ü£¬¶Ë¿Ú:%d", thePrefs.lastStunLocalUDPPort);
 	}
 	CloseTTS();
 	m_pDropTarget->Revoke();
@@ -1923,9 +1930,8 @@ void CemuleDlg::OnClose()
 
 	thePrefs.Uninit();
 	theApp.m_app_state = APP_STATE_DONE;
-
 	// ÖØÆôÂß¼­
-	if (theApp.IsReboot) {
+	if (theApp.needReboot) {
 		// Æô¶¯ÐÂµÄ eMule ÊµÀý
 		TCHAR szPath[MAX_PATH];
 		GetModuleFileName(NULL, szPath, MAX_PATH);
@@ -1941,7 +1947,6 @@ void CemuleDlg::OnClose()
 			CloseHandle(pi.hThread);
 		}
 	}
-
 	CTrayDialog::OnCancel();
 	AddDebugLogLine(DLP_VERYLOW, _T("Closed eMule"));
 }

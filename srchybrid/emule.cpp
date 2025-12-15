@@ -78,6 +78,11 @@
 #define MAX_TRIES 3
 #include "DLP.h" //Xman DLP
 #include "UPnPManager.h"
+#include "TransferDlg.h"
+#include <WinTcpStun.h>
+#include <TaskbarNotifier.h>
+#include <kademlia/kademlia/UDPFirewallTester.h>
+#include <MenuCmds.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -101,7 +106,13 @@ CLogFile theLog;
 CLogFile theVerboseLog;
 bool g_bLowColorDesktop = false;
 bool g_bGdiPlusInstalled = false;
-
+std::string m_lastPublicIP;
+uint16_t m_lastStunLocalPort;
+uint16_t m_lastStunLocalUDPPort;
+uint16_t m_lastPublicPort;
+uint16_t m_lastUDPPublicPort;
+std::string m_lastUDPPublicIP;
+std::vector<StunServerInfo> stunServers;
 //#define USE_16COLOR_ICONS
 
 
@@ -109,7 +120,6 @@ bool g_bGdiPlusInstalled = false;
 // MSLU (Microsoft Layer for Unicode) support - UnicoWS
 // 
 bool g_bUnicoWS = false;
-
 void ShowUnicowsError()
 {
 	// NOTE: Do *NOT* use any MFC nor W-functions here!
@@ -663,16 +673,6 @@ BOOL CemuleApp::InitInstance()
 			}
 		}
 	}
-
-	// UPnP Port forwarding
-	m_pUPnPFinder = new CUPnPImplWrapper();
-	if (!m_UPnPManager.Initialize(2000, thePrefs.GetBindAddrA()))
-	{
-		LogError(_T("UPNP: 未找到UPNP设备，请检查路由器是否打开UPNP功能。"));
-	}
-	else {
-		theApp.QueueLogLineEx(LOG_SUCCESS, L"UPNP: 查找UPNP设备成功。");
-	}
     // Highres scheduling gives better resolution for Sleep(...) calls, and timeGetTime() calls
     m_wTimerRes = 0;
     if(thePrefs.GetHighresTimer()) {
@@ -719,7 +719,99 @@ BOOL CemuleApp::InitInstance()
 	mmserver = new CMMServer();
 	scheduler = new CScheduler();
 	m_pPeerCache = new CPeerCacheFinder();
-	
+	// UPnP端口转发
+	m_pUPnPFinder = new CUPnPImplWrapper();
+	if (!m_UPnPManager.Initialize(2000, thePrefs.GetBindAddrA()))
+	{
+		LogError(_T("UPNP: 未找到支持UPNP的路由器，请检查路由器是否已启用UPNP功能"));
+	}
+	else {
+		theApp.QueueLogLineEx(LOG_SUCCESS, L"UPNP: 已成功连接到路由器UPNP服务");
+	}
+	CTcpStunClient stunClient;
+	std::string publicIP;
+	uint16_t publicPort = 0;
+	// 执行UPnP操作
+	stunServers.push_back(StunServerInfo::FromString("stun.voipia.net:3478"));
+	stunServers.push_back(StunServerInfo::FromString("stun.linuxtrent.it:3478"));
+	stunServers.push_back(StunServerInfo::FromString("stun.graftlab.com:3478"));
+	stunServers.push_back(StunServerInfo::FromString("stun.yesdates.com:3478"));
+	stunServers.push_back(StunServerInfo::FromString("stun.kaseya.com:3478"));
+	if (stunClient.DoTcpStun(stunServers, publicIP, publicPort, m_lastStunLocalPort)) {
+		CString stunResult;
+		stunResult.Format(_T("TCP端口映射检测完成：本地端口 %d -> 公网端口 %s:%d"),
+			m_lastStunLocalPort, CString(publicIP.c_str()), publicPort);
+		theApp.QueueLogLineEx(LOG_SUCCESS, stunResult);
+		if (!theApp.m_UPnPManager.isInitialized()) {
+			LogError(_T("UPNP: 无法连接路由器UPNP服务"));
+		}
+		else {
+			if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalPort, "TCP"))
+			{
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"已清除旧的TCP端口映射（端口:%d）", thePrefs.lastStunLocalPort);
+			}
+			else {
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"清理旧TCP端口映射失败（端口:%d），可能之前没有映射", thePrefs.lastStunLocalPort);
+			}
+
+			if (theApp.m_UPnPManager.AddPortMapping(publicPort, m_lastStunLocalPort, "TCP", "eMule TCP(STUN)")) {
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"TCP端口映射成功：%d -> %s:%d", m_lastStunLocalPort, CString(publicIP.c_str()), publicPort);
+				// 保存最后一次STUN穿透发起的本地端口,用于删除之前的映射
+				thePrefs.lastStunLocalPort = m_lastStunLocalPort;
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"已将TCP监听端口从 %d 改为 %d", thePrefs.port, publicPort);
+				thePrefs.port = publicPort;
+				thePrefs.Save();
+			}
+			else {
+				LogError(L"TCP端口映射失败：%d -> %s:%d", m_lastStunLocalPort, CString(publicIP.c_str()), publicPort);
+			}
+		}
+		// 保存公网IP端口用于后续STUN检测
+		m_lastPublicIP = publicIP;
+		m_lastPublicPort = publicPort;
+	}
+	else {
+		theApp.QueueLogLineEx(LOG_WARNING, L"TCP穿透检测失败，可能处于内网环境或STUN服务器不可用");
+	}
+	std::string udpPublicIP;
+	uint16_t udpPublicPort = 0;
+	if (stunClient.DoUdpStun(stunServers, udpPublicIP, udpPublicPort, m_lastStunLocalUDPPort)) {
+		CString stunResult;
+		stunResult.Format(_T("UDP端口映射检测完成：本地端口 %d -> 公网端口 %s:%d"),
+			m_lastStunLocalUDPPort, CString(udpPublicIP.c_str()), udpPublicPort);
+		theApp.QueueLogLineEx(LOG_SUCCESS, stunResult);
+		if (!theApp.m_UPnPManager.isInitialized()) {
+			LogError(_T("UPNP: 无法连接路由器UPNP服务"));
+		}
+		else {
+			if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalUDPPort, "UDP"))
+			{
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"已清除旧的UDP端口映射（端口:%d）", thePrefs.lastStunLocalUDPPort);
+			}
+			else {
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"清理旧的UDP端口映射失败（端口:%d），可能之前没有映射", thePrefs.lastStunLocalUDPPort);
+			}
+
+			if (theApp.m_UPnPManager.AddPortMapping(udpPublicPort, m_lastStunLocalUDPPort, "UDP", "eMule UDP(STUN)")) {
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"UDP端口映射成功：%d -> %s:%d", m_lastStunLocalUDPPort, CString(udpPublicIP.c_str()), udpPublicPort);
+				// 保存最后一次STUN穿透发起的本地端口,用于删除之前的映射
+				thePrefs.lastStunLocalUDPPort = m_lastStunLocalUDPPort;
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"已将UDP监听端口从 %d 改为 %d", thePrefs.udpport, udpPublicPort);
+				thePrefs.udpport = udpPublicPort;
+				thePrefs.Save();
+			}
+			else {
+				LogError(L"UDP端口映射失败：%d -> %s:%d", m_lastStunLocalUDPPort, CString(udpPublicIP.c_str()), udpPublicPort);
+			}
+		}
+		// 保存UDP公网IP端口用于后续STUN检测
+		m_lastUDPPublicIP = udpPublicIP;
+		m_lastUDPPublicPort = udpPublicPort;
+	}
+	else {
+		theApp.QueueLogLineEx(LOG_WARNING, L"UDP穿透检测失败，可能处于内网环境或STUN服务器不可用");
+	}
+	StartStunCheck();
 	thePerfLog.Startup();
 	dlg.DoModal();
 
@@ -730,6 +822,7 @@ BOOL CemuleApp::InitInstance()
 		RevertReg();
 
 	::CloseHandle(m_hMutexOneInstance);
+
 #ifdef _DEBUG
 	if (g_pfnPrevCrtAllocHook)
 		_CrtSetAllocHook(g_pfnPrevCrtAllocHook);
@@ -751,7 +844,256 @@ BOOL CemuleApp::InitInstance()
 	AddDebugLogLine(DLP_VERYLOW, _T("%hs: returning: FALSE"), __FUNCTION__);
 	return FALSE;
 }
+void CemuleApp::StartStunCheck() {
+	m_bStunCheckRunning = true;
+	m_hStunCheckThread = ::CreateThread(NULL, 0, StunCheckThread, this, 0, NULL);
+	if (m_hStunCheckThread == NULL) {
+		m_bStunCheckRunning = false;
+		LogError(_T("无法启动端口监控线程"));
+	}
+	else {
+		theApp.QueueLogLineEx(LOG_SUCCESS, L"已启动端口映射监控服务");
+	}
+}
+// 停止STUN检查线程
+void CemuleApp::StopStunCheck()
+{
+	if (m_bStunCheckRunning) {
+		m_bStunCheckRunning = false;
+		if (m_hStunCheckThread) {
+			WaitForSingleObject(m_hStunCheckThread, 5000);
+			CloseHandle(m_hStunCheckThread);
+			m_hStunCheckThread = NULL;
+		}
+		theApp.QueueLogLineEx(LOG_SUCCESS, L"已停止端口映射监控服务");
+	}
+}
+DWORD WINAPI CemuleApp::StunCheckThread(LPVOID lpParam)
+{
+	CemuleApp* pThis = static_cast<CemuleApp*>(lpParam);
 
+	while (pThis->m_bStunCheckRunning) {
+		// 每10秒检查一次
+		Sleep(30000);
+
+		if (!pThis->m_bStunCheckRunning) {
+			break;
+		}
+
+		pThis->CheckStunMapping();
+	}
+
+	return 0;
+}
+const int MAX_UDP_NAT_RETRY_COUNT = 5;
+int udpNatRetryCount = 0;
+const int MAX_RECHECK_FIREWALLED_COUNT = 20; // 每20次检查重新检测一次防火墙状态
+int recheckFirewalledCount = 0;
+void CemuleApp::CheckStunMapping()
+{
+	if (!m_bStunCheckRunning || m_lastStunLocalPort == 0) {
+		return;
+	}
+	CTcpStunClient stunClient;
+	std::string currentPublicIP;
+	uint16_t currentPublicPort = 0;
+	theApp.QueueLogLineEx(LOG_DEBUG, L"正在检测端口映射状态...", m_lastStunLocalPort);
+	if (stunClient.DoTcpStun(m_lastStunLocalPort, stunServers,
+		currentPublicIP, currentPublicPort)) {
+		// 处理检测结果
+		HandleStunDetectionResult(currentPublicIP, currentPublicPort, m_lastStunLocalPort);
+	}else {
+		theApp.QueueLogLineEx(LOG_WARNING, L"TCP端口检测失败，本地端口: %d", m_lastStunLocalPort);
+	}
+	if (currentPublicIP != m_lastUDPPublicIP && stunClient.DoUdpStun(m_lastStunLocalUDPPort, stunServers, currentPublicIP, currentPublicPort))
+	{
+		// 处理检测结果
+		HandleStunUDPDetectionResult(currentPublicIP, currentPublicPort, m_lastStunLocalUDPPort);
+		
+	}
+	
+	if (Kademlia::CKademlia::IsConnected())
+	{
+		if (udpNatRetryCount < MAX_UDP_NAT_RETRY_COUNT)
+		{
+			bool bFirewalled = Kademlia::CUDPFirewallTester::IsFirewalledUDP(true);
+			if (bFirewalled) {
+				// UDP被阻挡，需要重试
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"UDP状态:通过防火墙，正在进行第 %i 次KAD网络重连...",
+					(udpNatRetryCount + 1));
+				udpNatRetryCount++;
+				Kademlia::CKademlia::Stop();
+				Kademlia::CKademlia::Start();
+			}
+		}
+		else {
+			LogError(L"UDP网络穿透失败");
+		}
+	}
+	bool bFirewalled = Kademlia::CUDPFirewallTester::IsFirewalledUDP(true);
+	bool isVerified = Kademlia::CUDPFirewallTester::IsVerified();
+	if (!bFirewalled && isVerified)
+	{
+		if (recheckFirewalledCount > MAX_RECHECK_FIREWALLED_COUNT)
+		{
+			theApp.QueueLogLineEx(LOG_SUCCESS, L"重新检查UDP防火墙");
+			Kademlia::CKademlia::RecheckFirewalled();
+			recheckFirewalledCount = 0;
+		}
+		recheckFirewalledCount++;
+	}
+}
+
+void CemuleApp::HandleStunDetectionResult(const std::string& currentPublicIP,
+	uint16_t currentPublicPort, uint16_t localPort)
+{
+	if (m_lastPublicPort == 0)
+	{
+		theApp.QueueLogLineEx(LOG_WARNING, L"STUN-TCP端口检测异常：未找到有效的公网端口记录");
+		return;
+	}
+	// 检查映射关系是否有变化
+	if (currentPublicIP != m_lastPublicIP || currentPublicPort != m_lastPublicPort) {
+		CString changeMsg;
+		changeMsg.Format(_T("检测到TCP端口映射发生变化：\n之前：%s:%d\n现在：%s:%d\n本地端口：%d"),
+			CString(m_lastPublicIP.c_str()), m_lastPublicPort,
+			CString(currentPublicIP.c_str()), currentPublicPort, localPort);
+		LogError(changeMsg);
+		theApp.emuledlg->ShowNotifier(changeMsg, TBN_NEWVERSION);
+		theApp.emuledlg->CloseConnection();
+		if (!theApp.IsPortchangeAllowed())
+		{
+			RebootEmule();
+			return;
+		}
+		if (!theApp.m_UPnPManager.isInitialized()) {
+			LogError(_T("无法连接路由器UPNP服务"));
+		}
+		else {
+			if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalPort, "TCP"))
+			{
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"已清除旧的TCP端口映射（端口:%d）", m_lastStunLocalPort);
+			}
+			else {
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"清理旧的TCP端口映射失败（端口:%d），可能之前没有映射", m_lastStunLocalPort);
+			}
+
+			if (theApp.m_UPnPManager.AddPortMapping(currentPublicPort, m_lastStunLocalPort, "TCP", "eMule TCP(STUN)")) {
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"TCP端口重新映射成功：%d -> %s:%d", m_lastStunLocalPort, CString(currentPublicIP.c_str()), currentPublicPort);
+				// 保存最后一次STUN穿透发起的本地端口,用于删除之前的映射
+				thePrefs.lastStunLocalPort = m_lastStunLocalPort;
+				theApp.QueueLogLineEx(LOG_SUCCESS, L"已将TCP监听端口更新为 %d", currentPublicPort);
+				thePrefs.port = currentPublicPort;
+				theApp.listensocket->Rebind();
+				thePrefs.Save();
+			}
+			else {
+				LogError(L"TCP端口重新映射失败：%d -> %s:%d", m_lastStunLocalPort, CString(currentPublicIP.c_str()), currentPublicPort);
+			}
+
+			// 保存公网IP端口用于后续STUN检测
+			m_lastPublicIP = currentPublicIP;
+			m_lastPublicPort = currentPublicPort;
+
+		}
+		theApp.emuledlg->ShowNotifier(L"正在重新连接...", TBN_NEWVERSION);
+		m_lastPublicIP = currentPublicIP;
+		m_lastPublicPort = currentPublicPort;
+		theApp.emuledlg->StartConnection();
+		// 获取文件数量
+		int fileCount = theApp.downloadqueue->GetFileCount();
+		theApp.emuledlg->ShowNotifier(L"正在恢复下载任务...", TBN_NEWVERSION);
+		// 遍历所有文件
+		for (int i = 0; i < fileCount; i++) {
+			CPartFile* partfile = theApp.downloadqueue->GetFileByIndex(i);
+			if (partfile) {
+				partfile->ResumeFile();
+				LogError(L"已恢复下载：%s", partfile->GetFileName());
+			}
+		}
+	}
+	else {
+		// 映射关系稳定
+		theApp.QueueLogLineEx(LOG_DEBUG,
+			L"TCP端口映射状态正常：本地 %d -> 公网 %s:%d",
+			localPort,
+			CString(currentPublicIP.c_str()), currentPublicPort);
+	}
+}
+void CemuleApp::RebootEmule() {
+	if (theApp.emuledlg && theApp.emuledlg->m_hWnd) {
+		theApp.needReboot = true;
+		theApp.emuledlg->PostMessage(WM_COMMAND, MP_EXIT, 0);
+	}
+}
+void CemuleApp::HandleStunUDPDetectionResult(const std::string& currentPublicIP,
+	uint16_t currentPublicPort, uint16_t localPort){
+	if (m_lastUDPPublicPort == 0)
+	{
+		theApp.QueueLogLineEx(LOG_WARNING, L"STUN-UDP端口检测异常：未找到有效的公网端口记录");
+		return;
+	}
+	
+	CString changeMsg;
+	changeMsg.Format(_T("检测到端口映射发生变化：\n之前：%s:%d\n现在：%s:%d\n本地端口：%d"),
+		CString(m_lastPublicIP.c_str()), m_lastPublicPort,
+		CString(currentPublicIP.c_str()), currentPublicPort, localPort);
+	LogError(changeMsg);
+	theApp.emuledlg->ShowNotifier(changeMsg, TBN_NEWVERSION);
+	theApp.emuledlg->CloseConnection();
+	if (!theApp.IsPortchangeAllowed())
+	{
+		RebootEmule();
+		return;
+	}
+	if (!theApp.m_UPnPManager.isInitialized()) {
+		LogError(_T("无法连接路由器UPNP服务"));
+	}
+	else {
+		if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalUDPPort, "UDP"))
+		{
+			theApp.QueueLogLineEx(LOG_SUCCESS, L"已清除旧的UDP端口映射（端口:%d）", m_lastStunLocalUDPPort);
+		}
+		else {
+			theApp.QueueLogLineEx(LOG_SUCCESS, L"清理旧的UDP端口映射失败（端口:%d），可能之前没有映射", m_lastStunLocalUDPPort);
+		}
+
+		if (theApp.m_UPnPManager.AddPortMapping(currentPublicPort, m_lastStunLocalUDPPort, "UDP", "eMule UDP(STUN)")) {
+			theApp.QueueLogLineEx(LOG_SUCCESS, L"UDP端口重新映射成功：%d -> %s:%d", m_lastStunLocalUDPPort, CString(currentPublicIP.c_str()), currentPublicPort);
+			// 保存最后一次STUN穿透发起的本地端口,用于删除之前的映射
+			thePrefs.lastStunLocalUDPPort = m_lastStunLocalUDPPort;
+			theApp.QueueLogLineEx(LOG_SUCCESS, L"已将UDP监听端口更新为 %d", thePrefs.udpport, currentPublicPort);
+			thePrefs.udpport = currentPublicPort;
+			thePrefs.Save();
+		}
+		else {
+			LogError(L"UDP端口重新映射失败：%d -> %s:%d", m_lastStunLocalPort, CString(currentPublicIP.c_str()), currentPublicPort);
+		}
+		// 保存UDP公网IP端口用于后续STUN检测
+		m_lastUDPPublicIP = currentPublicIP;
+		m_lastUDPPublicPort = currentPublicPort;
+
+	}
+	if (theApp.emuledlg && theApp.emuledlg->m_hWnd) {
+		theApp.emuledlg->PostMessage(WM_COMMAND, MP_EXIT, 0);
+		return;
+	}
+	theApp.emuledlg->ShowNotifier(L"正在重新连接...", TBN_NEWVERSION);
+	m_lastUDPPublicIP = currentPublicIP;
+	m_lastUDPPublicPort = currentPublicPort;
+	theApp.emuledlg->StartConnection();
+	// 获取文件数量
+	int fileCount = theApp.downloadqueue->GetFileCount();
+	theApp.emuledlg->ShowNotifier(L"正在恢复下载任务...", TBN_NEWVERSION);
+	// 遍历所有文件
+	for (int i = 0; i < fileCount; i++) {
+		CPartFile* partfile = theApp.downloadqueue->GetFileByIndex(i);
+		if (partfile) {
+			partfile->ResumeFile();
+			LogError(L"已恢复下载：%s", partfile->GetFileName());
+		}
+	}
+}
 int CemuleApp::ExitInstance()
 {
 	AddDebugLogLine(DLP_VERYLOW, _T("%hs"), __FUNCTION__);

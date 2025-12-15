@@ -9,6 +9,7 @@
 #include <mstcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #include <cstdint>
+
 // STUN消息类型
 #define STUN_BINDING_REQUEST  0x0001
 #define STUN_BINDING_RESPONSE 0x0101
@@ -38,109 +39,260 @@ struct StunAddress {
 };
 #pragma pack(pop)
 
-// TCP STUN客户端类
-class CTcpStunClient {
+// 服务器信息结构体
+struct StunServerInfo {
+	std::string server;
+	uint16_t port;
+
+	StunServerInfo(const std::string& s = "", uint16_t p = 3478) : server(s), port(p) {}
+
+	// 从字符串创建（支持 "server:port" 格式）
+	static StunServerInfo FromString(const std::string& str) {
+		size_t colonPos = str.find(':');
+		if (colonPos != std::string::npos) {
+			std::string server = str.substr(0, colonPos);
+			uint16_t port = static_cast<uint16_t>(std::stoi(str.substr(colonPos + 1)));
+			return StunServerInfo(server, port);
+		}
+		return StunServerInfo(str, 3478); // 默认STUN端口
+	}
+
+	// 从pair创建
+	static StunServerInfo FromPair(const std::pair<std::string, uint16_t>& pair) {
+		return StunServerInfo(pair.first, pair.second);
+	}
+};
+
+// STUN客户端类（支持TCP和UDP）
+class CStunClient {
 public:
-	CTcpStunClient() : m_socket(INVALID_SOCKET) {
+	CStunClient() : m_tcpSocket(INVALID_SOCKET), m_udpSocket(INVALID_SOCKET) {
 		WSADATA wsaData;
 		WSAStartup(MAKEWORD(2, 2), &wsaData);
 	}
 
-	~CTcpStunClient() {
-		CloseConnection();
+	~CStunClient() {
+		CloseTcpConnection();
+		CloseUdpConnection();
 		WSACleanup();
 	}
 
+	// TCP STUN功能 - 绑定到任意端口，尝试多个服务器
+	bool DoTcpStun(const std::vector<StunServerInfo>& servers,
+		std::string& publicIP, uint16_t& publicPort, uint16_t& localPort) {
+		return DoTcpStunInternal(0, servers, publicIP, publicPort, localPort);
+	}
+
+	// TCP STUN功能 - 绑定到指定端口，尝试多个服务器
+	bool DoTcpStun(uint16_t localPort, const std::vector<StunServerInfo>& servers,
+		std::string& publicIP, uint16_t& publicPort) {
+		uint16_t dummyLocalPort;
+		return DoTcpStunInternal(localPort, servers, publicIP, publicPort, dummyLocalPort);
+	}
+
+	// UDP STUN功能 - 绑定到任意端口，尝试多个服务器
+	bool DoUdpStun(const std::vector<StunServerInfo>& servers,
+		std::string& publicIP, uint16_t& publicPort, uint16_t& localPort) {
+		return DoUdpStunInternal(0, servers, publicIP, publicPort, localPort);
+	}
+
+	// UDP STUN功能 - 绑定到指定端口，尝试多个服务器
+	bool DoUdpStun(uint16_t localPort, const std::vector<StunServerInfo>& servers,
+		std::string& publicIP, uint16_t& publicPort) {
+		uint16_t dummyLocalPort;
+		return DoUdpStunInternal(localPort, servers, publicIP, publicPort, dummyLocalPort);
+	}
+
+	// 保持向后兼容的单服务器版本
 	bool DoTcpStun(const std::string& stunServer, uint16_t stunPort,
 		std::string& publicIP, uint16_t& publicPort, uint16_t& localPort) {
-
-		// 创建TCP socket
-		m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		if (m_socket == INVALID_SOCKET) {
-			return false;
-		}
-
-		// 绑定到任意本地端口
-		sockaddr_in localAddr = {};
-		localAddr.sin_family = AF_INET;
-		localAddr.sin_addr.s_addr = INADDR_ANY;
-		localAddr.sin_port = htons(localPort);
-
-		if (bind(m_socket, (sockaddr*)&localAddr, sizeof(localAddr)) == SOCKET_ERROR) {
-			CloseConnection();
-			return false;
-		}
-
-		// 获取本地端口
-		int addrLen = sizeof(localAddr);
-		if (getsockname(m_socket, (sockaddr*)&localAddr, &addrLen) == SOCKET_ERROR) {
-			CloseConnection();
-			return false;
-		}
-		localPort = ntohs(localAddr.sin_port);
-
-		// 解析STUN服务器地址
-		sockaddr_in serverAddr = {};
-		serverAddr.sin_family = AF_INET;
-		serverAddr.sin_port = htons(stunPort);
-
-		hostent* host = gethostbyname(stunServer.c_str());
-		if (!host) {
-			CloseConnection();
-			return false;
-		}
-		serverAddr.sin_addr = *((in_addr*)host->h_addr);
-
-		// 设置连接超时
-		DWORD timeout = 5000; // 5秒超时
-		setsockopt(m_socket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
-		setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-
-		// 连接到STUN服务器
-		if (connect(m_socket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-			CloseConnection();
-			return false;
-		}
-
-		// 发送STUN绑定请求
-		std::vector<uint8_t> stunRequest = CreateStunBindingRequest();
-		int sent = send(m_socket, (char*)stunRequest.data(), (int)stunRequest.size(), 0);
-		if (sent == SOCKET_ERROR) {
-			CloseConnection();
-			return false;
-		}
-
-		// 接收STUN响应
-		char buffer[1024];
-		int received = recv(m_socket, buffer, sizeof(buffer), 0);
-		if (received == SOCKET_ERROR) {
-			CloseConnection();
-			return false;
-		}
-
-		// 解析STUN响应获取公网IP和端口
-		bool result = ParseStunResponse(buffer, received, publicIP, publicPort);
-
-		// STUN完成后立即关闭连接，以便端口可以重用
-		CloseConnection();
-
-		return result;
+		std::vector<StunServerInfo> servers;
+		servers.push_back(StunServerInfo(stunServer, stunPort));
+		return DoTcpStunInternal(0, servers, publicIP, publicPort, localPort);
 	}
-	bool CTcpStunClient::DoTcpStunWithSamePort(uint16_t localPort, const std::string& stunServer,
-		uint16_t stunPort, std::string& publicIP,
-		uint16_t& publicPort)
-	{
+
+	bool DoTcpStun(uint16_t localPort, const std::string& stunServer,
+		uint16_t stunPort, std::string& publicIP, uint16_t& publicPort) {
+		std::vector<StunServerInfo> servers;
+		servers.push_back(StunServerInfo(stunServer, stunPort));
+		uint16_t dummyLocalPort;
+		return DoTcpStunInternal(localPort, servers, publicIP, publicPort, dummyLocalPort);
+	}
+
+	bool DoUdpStun(const std::string& stunServer, uint16_t stunPort,
+		std::string& publicIP, uint16_t& publicPort, uint16_t& localPort) {
+		std::vector<StunServerInfo> servers;
+		servers.push_back(StunServerInfo(stunServer, stunPort));
+		return DoUdpStunInternal(0, servers, publicIP, publicPort, localPort);
+	}
+
+	bool DoUdpStun(uint16_t localPort, const std::string& stunServer,
+		uint16_t stunPort, std::string& publicIP, uint16_t& publicPort) {
+		std::vector<StunServerInfo> servers;
+		servers.push_back(StunServerInfo(stunServer, stunPort));
+		uint16_t dummyLocalPort;
+		return DoUdpStunInternal(localPort, servers, publicIP, publicPort, dummyLocalPort);
+	}
+
+	// 获取本地端口（TCP）
+	uint16_t GetTcpLocalPort() {
+		if (m_tcpSocket == INVALID_SOCKET) return 0;
+
+		sockaddr_in localAddr = {};
+		int addrLen = sizeof(localAddr);
+		if (getsockname(m_tcpSocket, (sockaddr*)&localAddr, &addrLen) == 0) {
+			return ntohs(localAddr.sin_port);
+		}
+		return 0;
+	}
+
+	// 获取本地端口（UDP）
+	uint16_t GetUdpLocalPort() {
+		if (m_udpSocket == INVALID_SOCKET) return 0;
+
+		sockaddr_in localAddr = {};
+		int addrLen = sizeof(localAddr);
+		if (getsockname(m_udpSocket, (sockaddr*)&localAddr, &addrLen) == 0) {
+			return ntohs(localAddr.sin_port);
+		}
+		return 0;
+	}
+
+	void CloseTcpConnection() {
+		if (m_tcpSocket != INVALID_SOCKET) {
+			closesocket(m_tcpSocket);
+			m_tcpSocket = INVALID_SOCKET;
+		}
+	}
+
+	void CloseUdpConnection() {
+		if (m_udpSocket != INVALID_SOCKET) {
+			closesocket(m_udpSocket);
+			m_udpSocket = INVALID_SOCKET;
+		}
+	}
+
+private:
+	SOCKET m_tcpSocket;
+	SOCKET m_udpSocket;
+
+	// TCP STUN内部实现（多服务器）
+	bool DoTcpStunInternal(uint16_t desiredLocalPort, const std::vector<StunServerInfo>& servers,
+		std::string& publicIP, uint16_t& publicPort, uint16_t& actualLocalPort) {
+
 		// 创建新socket
 		SOCKET stunSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (stunSocket == INVALID_SOCKET) {
 			return false;
 		}
 
-		// 重要：设置SO_REUSEADDR选项
+		// 设置SO_REUSEADDR选项以便端口重用
 		int reuse = 1;
 		if (setsockopt(stunSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse)) == SOCKET_ERROR) {
-			theApp.QueueLogLineEx(LOG_WARNING, L"设置SO_REUSEADDR失败: %d", WSAGetLastError());
 			closesocket(stunSocket);
+			return false;
+		}
+
+		// 绑定到本地端口
+		sockaddr_in localAddr = {};
+		localAddr.sin_family = AF_INET;
+		localAddr.sin_addr.s_addr = INADDR_ANY;
+		localAddr.sin_port = htons(desiredLocalPort);
+
+		if (bind(stunSocket, (sockaddr*)&localAddr, sizeof(localAddr)) == SOCKET_ERROR) {
+			closesocket(stunSocket);
+			return false;
+		}
+
+		// 获取实际绑定的端口
+		sockaddr_in boundAddr = {};
+		int addrLen = sizeof(boundAddr);
+		if (getsockname(stunSocket, (sockaddr*)&boundAddr, &addrLen) == SOCKET_ERROR) {
+			closesocket(stunSocket);
+			return false;
+		}
+		actualLocalPort = ntohs(boundAddr.sin_port);
+
+		// 设置超时
+		DWORD timeout = 5000;
+		setsockopt(stunSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
+		setsockopt(stunSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+
+		// 准备STUN请求
+		std::vector<uint8_t> stunRequest = CreateStunBindingRequest();
+
+		// 尝试每个服务器
+		for (size_t i = 0; i < servers.size(); i++) {
+			const StunServerInfo& server = servers[i];
+
+			// 解析STUN服务器地址
+			sockaddr_in serverAddr = {};
+			serverAddr.sin_family = AF_INET;
+			serverAddr.sin_port = htons(server.port);
+
+			hostent* host = gethostbyname(server.server.c_str());
+			if (!host) {
+				continue; // 解析失败，尝试下一个服务器
+			}
+			serverAddr.sin_addr = *((in_addr*)host->h_addr);
+
+			// 连接到STUN服务器
+			if (connect(stunSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) != SOCKET_ERROR) {
+				// 发送STUN请求
+				int sent = send(stunSocket, (char*)stunRequest.data(), (int)stunRequest.size(), 0);
+				if (sent != SOCKET_ERROR) {
+					// 接收STUN响应
+					char buffer[1024];
+					int received = recv(stunSocket, buffer, sizeof(buffer), 0);
+					if (received != SOCKET_ERROR) {
+						// 解析STUN响应
+						if (ParseStunResponse(buffer, received, publicIP, publicPort)) {
+							closesocket(stunSocket);
+							return true; // 成功获取公网地址
+						}
+					}
+				}
+			}
+
+			// 当前服务器失败，关闭socket重新创建以尝试下一个服务器
+			closesocket(stunSocket);
+
+			// 创建新的socket
+			stunSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			if (stunSocket == INVALID_SOCKET) {
+				return false;
+			}
+
+			// 重新设置选项
+			setsockopt(stunSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse));
+			setsockopt(stunSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
+			setsockopt(stunSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+
+			// 重新绑定
+			if (bind(stunSocket, (sockaddr*)&localAddr, sizeof(localAddr)) == SOCKET_ERROR) {
+				closesocket(stunSocket);
+				return false;
+			}
+		}
+
+		closesocket(stunSocket);
+		return false; // 所有服务器都尝试失败
+	}
+
+	// UDP STUN内部实现（多服务器）
+	bool DoUdpStunInternal(uint16_t desiredLocalPort, const std::vector<StunServerInfo>& servers,
+		std::string& publicIP, uint16_t& publicPort, uint16_t& actualLocalPort) {
+
+		// 创建UDP socket
+		SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		if (udpSocket == INVALID_SOCKET) {
+			return false;
+		}
+
+		// 设置SO_REUSEADDR选项
+		int reuse = 1;
+		if (setsockopt(udpSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse)) == SOCKET_ERROR) {
+			closesocket(udpSocket);
 			return false;
 		}
 
@@ -148,121 +300,72 @@ public:
 		sockaddr_in localAddr = {};
 		localAddr.sin_family = AF_INET;
 		localAddr.sin_addr.s_addr = INADDR_ANY;
-		localAddr.sin_port = htons(localPort);
+		localAddr.sin_port = htons(desiredLocalPort);
 
-		if (bind(stunSocket, (sockaddr*)&localAddr, sizeof(localAddr)) == SOCKET_ERROR) {
-			DWORD dwError = WSAGetLastError();
-			theApp.QueueLogLineEx(LOG_WARNING, L"绑定到端口 %d 失败: %d", localPort, dwError);
-			closesocket(stunSocket);
+		if (bind(udpSocket, (sockaddr*)&localAddr, sizeof(localAddr)) == SOCKET_ERROR) {
+			closesocket(udpSocket);
 			return false;
 		}
 
-		// 验证绑定端口
+		// 获取实际绑定的端口
 		sockaddr_in boundAddr = {};
 		int addrLen = sizeof(boundAddr);
-		if (getsockname(stunSocket, (sockaddr*)&boundAddr, &addrLen) == SOCKET_ERROR) {
-			closesocket(stunSocket);
+		if (getsockname(udpSocket, (sockaddr*)&boundAddr, &addrLen) == SOCKET_ERROR) {
+			closesocket(udpSocket);
 			return false;
 		}
-
-		uint16_t actualPort = ntohs(boundAddr.sin_port);
-		if (actualPort != localPort) {
-			theApp.QueueLogLineEx(LOG_WARNING, L"绑定端口不匹配: 期望 %d, 实际 %d", localPort, actualPort);
-			closesocket(stunSocket);
-			return false;
-		}
-
-		theApp.QueueLogLineEx(LOG_DEBUG, L"成功绑定到本地端口: %d", localPort);
-
-		// 解析STUN服务器地址
-		sockaddr_in serverAddr = {};
-		serverAddr.sin_family = AF_INET;
-		serverAddr.sin_port = htons(stunPort);
-
-		hostent* host = gethostbyname(stunServer.c_str());
-		if (!host) {
-			theApp.QueueLogLineEx(LOG_WARNING, L"解析STUN服务器地址失败");
-			closesocket(stunSocket);
-			return false;
-		}
-		serverAddr.sin_addr = *((in_addr*)host->h_addr);
+		actualLocalPort = ntohs(boundAddr.sin_port);
 
 		// 设置超时
 		DWORD timeout = 5000;
-		setsockopt(stunSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
-		setsockopt(stunSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+		setsockopt(udpSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
+		setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 
-		bool result = false;
-
-		// 连接到STUN服务器
-		theApp.QueueLogLineEx(LOG_DEBUG, L"连接到STUN服务器: %s:%d", CString(stunServer.c_str()), stunPort);
-
-		if (connect(stunSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-			DWORD dwError = WSAGetLastError();
-			theApp.QueueLogLineEx(LOG_WARNING, L"连接STUN服务器失败: %d", dwError);
-			closesocket(stunSocket);
-			return false;
-		}
-
-		theApp.QueueLogLineEx(LOG_DEBUG, L"已连接到STUN服务器，发送绑定请求");
-
-		// 发送STUN请求
+		// 准备STUN请求
 		std::vector<uint8_t> stunRequest = CreateStunBindingRequest();
-		int sent = send(stunSocket, (char*)stunRequest.data(), (int)stunRequest.size(), 0);
-		if (sent == SOCKET_ERROR) {
-			DWORD dwError = WSAGetLastError();
-			theApp.QueueLogLineEx(LOG_WARNING, L"发送STUN请求失败: %d", dwError);
-			closesocket(stunSocket);
-			return false;
+
+		// 尝试每个服务器
+		for (size_t i = 0; i < servers.size(); i++) {
+			const StunServerInfo& server = servers[i];
+
+			// 解析STUN服务器地址
+			sockaddr_in serverAddr = {};
+			serverAddr.sin_family = AF_INET;
+			serverAddr.sin_port = htons(server.port);
+
+			hostent* host = gethostbyname(server.server.c_str());
+			if (!host) {
+				continue; // 解析失败，尝试下一个服务器
+			}
+			serverAddr.sin_addr = *((in_addr*)host->h_addr);
+
+			// 发送STUN请求
+			int sent = sendto(udpSocket, (char*)stunRequest.data(), (int)stunRequest.size(), 0,
+				(sockaddr*)&serverAddr, sizeof(serverAddr));
+			if (sent != SOCKET_ERROR) {
+				// 接收STUN响应
+				char buffer[1024];
+				sockaddr_in fromAddr;
+				int fromLen = sizeof(fromAddr);
+
+				// 尝试接收，最多重试3次
+				for (int retry = 0; retry < 3; retry++) {
+					int received = recvfrom(udpSocket, buffer, sizeof(buffer), 0,
+						(sockaddr*)&fromAddr, &fromLen);
+					if (received != SOCKET_ERROR) {
+						// 解析STUN响应
+						if (ParseStunResponse(buffer, received, publicIP, publicPort)) {
+							closesocket(udpSocket);
+							return true; // 成功获取公网地址
+						}
+					}
+				}
+			}
 		}
 
-		theApp.QueueLogLineEx(LOG_DEBUG, L"已发送STUN请求，等待响应");
-
-		// 接收STUN响应
-		char buffer[1024];
-		int received = recv(stunSocket, buffer, sizeof(buffer), 0);
-		if (received == SOCKET_ERROR) {
-			DWORD dwError = WSAGetLastError();
-			theApp.QueueLogLineEx(LOG_WARNING, L"接收STUN响应失败: %d", dwError);
-			closesocket(stunSocket);
-			return false;
-		}
-
-		theApp.QueueLogLineEx(LOG_DEBUG, L"收到STUN响应，大小: %d 字节", received);
-
-		// 解析STUN响应
-		result = ParseStunResponse(buffer, received, publicIP, publicPort);
-
-		if (result) {
-			theApp.QueueLogLineEx(LOG_DEBUG, L"STUN检测成功: %s:%d", CString(publicIP.c_str()), publicPort);
-		}
-		else {
-			theApp.QueueLogLineEx(LOG_WARNING, L"解析STUN响应失败");
-		}
-
-		closesocket(stunSocket);
-		return result;
+		closesocket(udpSocket);
+		return false; // 所有服务器都尝试失败
 	}
-	uint16_t GetLocalPort() {
-		if (m_socket == INVALID_SOCKET) return 0;
-
-		sockaddr_in localAddr = {};
-		int addrLen = sizeof(localAddr);
-		if (getsockname(m_socket, (sockaddr*)&localAddr, &addrLen) == 0) {
-			return ntohs(localAddr.sin_port);
-		}
-		return 0;
-	}
-
-	void CloseConnection() {
-		if (m_socket != INVALID_SOCKET) {
-			closesocket(m_socket);
-			m_socket = INVALID_SOCKET;
-		}
-	}
-
-private:
-	SOCKET m_socket;
 
 	std::vector<uint8_t> CreateStunBindingRequest() {
 		std::vector<uint8_t> message(sizeof(StunHeader));
@@ -326,5 +429,7 @@ private:
 	}
 };
 
+// 为了保持向后兼容性，保留原来的类名
+typedef CStunClient CTcpStunClient;
 
 #endif // WINTCPSTUN_H
