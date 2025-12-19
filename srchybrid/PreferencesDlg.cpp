@@ -49,12 +49,14 @@ CPreferencesDlg::CPreferencesDlg()
 	m_wndScheduler.m_psp.dwFlags &= ~PSH_HASHELP;
 	m_wndProxy.m_psp.dwFlags &= ~PSH_HASHELP;
 	m_wndMessages.m_psp.dwFlags &= ~PSH_HASHELP;
+	m_wndStun.m_psp.dwFlags &= ~PSH_HASHELP;  // 添加这一行
 #if defined(_DEBUG) || defined(USE_DEBUG_DEVICE)
 	m_wndDebug.m_psp.dwFlags &= ~PSH_HASHELP;
 #endif
 
 	CTreePropSheet::SetPageIcon(&m_wndGeneral, _T("Preferences"));
 	CTreePropSheet::SetPageIcon(&m_wndDisplay, _T("DISPLAY"));
+	CTreePropSheet::SetPageIcon(&m_wndStun, _T("STUNNAT"));
 	CTreePropSheet::SetPageIcon(&m_wndConnection, _T("CONNECTION"));
 	CTreePropSheet::SetPageIcon(&m_wndProxy, _T("PROXY"));
 	CTreePropSheet::SetPageIcon(&m_wndServer, _T("SERVER"));
@@ -74,6 +76,7 @@ CPreferencesDlg::CPreferencesDlg()
 
 	AddPage(&m_wndGeneral);
 	AddPage(&m_wndDisplay);
+	AddPage(&m_wndStun);
 	AddPage(&m_wndConnection);
 	AddPage(&m_wndProxy);
 	AddPage(&m_wndServer);
@@ -140,6 +143,7 @@ void CPreferencesDlg::Localize()
 
 	m_wndGeneral.Localize();
 	m_wndDisplay.Localize();
+	m_wndStun.Localize();
 	m_wndConnection.Localize();
 	m_wndServer.Localize();
 	m_wndDirectories.Localize();
@@ -160,7 +164,8 @@ void CPreferencesDlg::Localize()
 	if (pTree)
 	{
 		pTree->SetItemText(GetPageTreeItem(c++), RemoveAmbersand(GetResString(IDS_PW_GENERAL)));
-		pTree->SetItemText(GetPageTreeItem(c++), RemoveAmbersand(GetResString(IDS_PW_DISPLAY))); 
+		pTree->SetItemText(GetPageTreeItem(c++), RemoveAmbersand(GetResString(IDS_PW_DISPLAY)));
+		pTree->SetItemText(GetPageTreeItem(c++), RemoveAmbersand(GetResString(IDS_PW_STUN)));
 		pTree->SetItemText(GetPageTreeItem(c++), RemoveAmbersand(GetResString(IDS_PW_CONNECTION))); 
 		pTree->SetItemText(GetPageTreeItem(c++), RemoveAmbersand(GetResString(IDS_PW_PROXY))); 
 		pTree->SetItemText(GetPageTreeItem(c++), RemoveAmbersand(GetResString(IDS_PW_SERVER))); 

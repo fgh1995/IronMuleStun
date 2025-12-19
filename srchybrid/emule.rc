@@ -104,7 +104,7 @@ BEGIN
     PUSHBUTTON      "v",IDC_DD,491,129,11,12,BS_CENTER
     PUSHBUTTON      "Update",IDC_UPDATESERVERMETFROMURL,445,145,57,13
     GROUPBOX        "My Info",IDC_MYINFO,367,164,139,122
-    CONTROL         "",IDC_MYINFOLIST,"RichEdit20W",ES_MULTILINE | ES_READONLY | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,372,176,130,106,WS_EX_STATICEDGE
+    CONTROL         "",IDC_MYINFOLIST,"RichEdit20W",WS_VSCROLL | WS_HSCROLL | WS_TABSTOP | 0x804,372,176,130,106,WS_EX_STATICEDGE
     ICON            "",IDC_SERVLST_ICO,5,5,20,20,SS_NOTIFY
     CONTROL         "Servers:",IDC_SERVLIST_TEXT,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,18,6,91,8
     CONTROL         "",IDC_SERVLIST,"SysListView32",LVS_REPORT | LVS_OWNERDRAWFIXED | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,5,17,358,159
@@ -522,7 +522,7 @@ BEGIN
     CONTROL         "-",IDC_ASAMPLERATE,"Static",SS_LEFTNOWORDWRAP | SS_NOPREFIX | WS_GROUP,279,83,112,8
     LTEXT           "Language:",IDC_STATIC_LANGUAGE,210,93,65,8,0,WS_EX_RIGHT
     LTEXT           "-",IDC_ALANGUAGE,279,93,112,8
-    CONTROL         "",IDC_FULL_FILE_INFO,"RichEdit20W",ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,4,110,394,72,WS_EX_STATICEDGE
+    CONTROL         "",IDC_FULL_FILE_INFO,"RichEdit20W",WS_VSCROLL | WS_HSCROLL | WS_TABSTOP | 0x884,4,110,394,72,WS_EX_STATICEDGE
     GROUPBOX        "General",IDC_GENERAL,4,2,394,41
 END
 
@@ -1127,7 +1127,7 @@ CAPTION "Network Information"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     LTEXT           "Network Information",IDC_NETWORK_INFO_LABEL,7,7,277,8
-    CONTROL         "",IDC_NETWORK_INFO,"RichEdit20W",ES_MULTILINE | ES_READONLY | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,7,16,277,125,WS_EX_STATICEDGE
+    CONTROL         "",IDC_NETWORK_INFO,"RichEdit20W",WS_VSCROLL | WS_HSCROLL | WS_TABSTOP | 0x804,7,16,277,125,WS_EX_STATICEDGE
     DEFPUSHBUTTON   "OK",IDOK,234,146,50,14
 END
 
@@ -1275,226 +1275,447 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 AAAEMULEAPP             ICON                    "res\\Mule.ico"
+
 AABCOLLECTIONFILETYPE   ICON                    "res\\emuleCollectionFileType.ico"
+
 COLOUR                  ICON                    "res\\colour.ico"
+
 BOLD                    ICON                    "res\\bold.ico"
+
 UNDERLINE               ICON                    "res\\underline.ico"
+
 RESETFORMAT             ICON                    "res\\resetformat.ico"
+
 EMPTY                   ICON                    "res\\Empty.ico"
+
 CONNECT                 ICON                    "res\\ConnectDo.ico"
+
 DISCONNECT              ICON                    "res\\ConnectDrop.ico"
+
 STOPCONNECTING          ICON                    "res\\ConnectStop.ico"
+
 KADEMLIA                ICON                    "res\\Kad.ico"
+
 SERVER                  ICON                    "res\\Server.ico"
+
 SEARCH                  ICON                    "res\\Search.ico"
+
 TRANSFER                ICON                    "res\\Transfer.ico"
+
 SHAREDFILES             ICON                    "res\\SharedFiles.ico"
+
 STATISTICS              ICON                    "res\\Statistics.ico"
+
 MESSAGES                ICON                    "res\\Messages.ico"
+
 IRC                     ICON                    "res\\IRC.ico"
+
 IRCCLIPBOARD            ICON                    "res\\IRCClipboard.ico"
+
 PREFERENCES             ICON                    "res\\Preferences.ico"
+
 TOOLS                   ICON                    "res\\Tools.ico"
+
 HELP                    ICON                    "res\\Help.ico"
+
 TRAYCONNECTED           ICON                    "res\\TrayConnected.ico"
+
 TRAYNOTCONNECTED        ICON                    "res\\TrayDisconnected.ico"
+
 TRAYLOWID               ICON                    "res\\TrayLowID.ico"
+
 DISPLAY                 ICON                    "res\\Display.ico"
+
 SECURITY                ICON                    "res\\Security.ico"
+
 WEB                     ICON                    "res\\Web.ico"
+
 SHAREDFILESLIST         ICON                    "res\\SharedFilesList.ico"
+
 TWEAK                   ICON                    "res\\Tweak.ico"
+
 NOTIFICATIONS           ICON                    "res\\Notifications.ico"
+
 CONNECTION              ICON                    "res\\Connection.ico"
+
 FOLDERS                 ICON                    "res\\Folders.ico"
+
 PROXY                   ICON                    "res\\Proxy.ico"
+
 SEARCHPARAMS            ICON                    "res\\SearchParams.ico"
+
 SEARCHMETHOD_KADSERVER  ICON                    "res\\KadServer.ico"
+
 SEARCHMETHOD_SERVER     ICON                    "res\\ServerSearch.ico"
+
 SEARCHMETHOD_FILEDONKEY ICON                    "res\\Filedonkey.ico"
+
 SEARCHMETHOD_GLOBAL     ICON                    "res\\Global.ico"
+
 SEARCHMETHOD_KADEMLIA   ICON                    "res\\SearchKad.ico"
+
 SEARCHMETHOD_SERVERACTIVE ICON                    "res\\SearchServerActive.ico"
+
 SEARCHMETHOD_GLOBALACTIVE ICON                    "res\\SearchGlobalActive.ico"
+
 SEARCHMETHOD_KADEMLIAACTIVE ICON                    "res\\SearchKadActive.ico"
+
 SEARCHRESULTS           ICON                    "res\\SearchResults.ico"
+
 SERVERLIST              ICON                    "res\\ServerList.ico"
+
 SERVERINFO              ICON                    "res\\ServerInfo.ico"
+
 ADDSERVER               ICON                    "res\\ServerAdd.ico"
+
 SERVERUPDATEMET         ICON                    "res\\ServersUpdate.ico"
+
 STATSDETAIL             ICON                    "res\\StatisticsDetail.ico"
+
 STATSCUMULATIVE         ICON                    "res\\StatsCumulative.ico"
+
 STATSGENERIC            ICON                    "res\\StatsGeneric.ico"
+
 STATSDAY                ICON                    "res\\StatsDay.ico"
+
 STATSMONTH              ICON                    "res\\StatsMonth.ico"
+
 STATSYEAR               ICON                    "res\\StatsYear.ico"
+
 STATSCLIENTS            ICON                    "res\\User.ico"
+
 STATSTIME               ICON                    "res\\StatsTime.ico"
+
 STATSPROJECTED          ICON                    "res\\StatsProjected.ico"
+
 STATSRECORDS            ICON                    "res\\Records.ico"
+
 HARDDISK                ICON                    "res\\HardDisk.ico"
+
 UP0DOWN0                ICON                    "res\\Up0down0.ico"
+
 UP1DOWN1                ICON                    "res\\Up1down1.ico"
+
 UP1DOWN0                ICON                    "res\\Up1down0.ico"
+
 UP0DOWN1                ICON                    "res\\Up0down1.ico"
+
 TRANSFERUPDOWN          ICON                    "res\\TransferUpDown.ico"
+
 UPLOAD                  ICON                    "res\\Upload.ico"
+
 CONNECTEDNOTNOT         ICON                    "res\\ConnectedNotNot.ico"
+
 CONNECTEDNOTLOW         ICON                    "res\\ConnectedNotLow.ico"
+
 CONNECTEDNOTHIGH        ICON                    "res\\ConnectedNotHigh.ico"
+
 CONNECTEDLOWNOT         ICON                    "res\\ConnectedLowNot.ico"
+
 CONNECTEDLOWLOW         ICON                    "res\\ConnectedLowLow.ico"
+
 CONNECTEDLOWHIGH        ICON                    "res\\ConnectedLowHigh.ico"
+
 CONNECTEDHIGHNOT        ICON                    "res\\ConnectedHighNot.ico"
+
 CONNECTEDHIGHLOW        ICON                    "res\\ConnectedHighLow.ico"
+
 CONNECTEDHIGHHIGH       ICON                    "res\\ConnectedHighHigh.ico"
+
 CONVERT                 ICON                    "res\\Convert.ico"
+
 INFO                    ICON                    "res\\Info.ico"
+
 CANCEL                  ICON                    "res\\Cancel.ico"
+
 FORWARD                 ICON                    "res\\NavigateForward.ico"
+
 BACK                    ICON                    "res\\NavigateBack.ico"
+
 CLOSETAB                ICON                    "res\\CloseTab.ico"
+
 CLOSETABSELECTED        ICON                    "res\\CloseTabSelected.ico"
+
 DOWNLOAD                ICON                    "res\\Download.ico"
+
 MESSAGE                 ICON                    "res\\Message.ico"
+
 MESSAGEPENDING          ICON                    "res\\MessagePending.ico"
+
 CHAT                    ICON                    "res\\Chat.ico"
+
 LOG                     ICON                    "res\\Log.ico"
+
 FRIEND                  ICON                    "res\\Friend.ico"
+
 FRIENDNOCLIENT          ICON                    "res\\Friends1.ico"
+
 FRIENDWITHCLIENT        ICON                    "res\\Friends2.ico"
+
 FRIENDCONNECTED         ICON                    "res\\Friends3.ico"
+
 CLIENTEDONKEY           ICON                    "res\\ClientDefault.ico"
+
 CLIENTEDONKEYHYBRID     ICON                    "res\\ClienteDonkeyHybrid.ico"
+
 CLIENTEDONKEYHYBRIDPLUS ICON                    "res\\ClienteDonkeyHybridPlus.ico"
+
 CLIENTMLDONKEY          ICON                    "res\\ClientMLDonkey.ico"
+
 CLIENTMLDONKEYPLUS      ICON                    "res\\ClientMLDonkeyPlus.ico"
+
 CLIENTSHAREAZA          ICON                    "res\\ClientShareaza.ico"
+
 CLIENTSECUREOVL         ICON                    "res\\ClientSecureHashOvl.ico"
+
 CLIENTSHAREAZAPLUS      ICON                    "res\\ClientShareazaPlus.ico"
+
 CLIENTCOMPATIBLEPLUS    ICON                    "res\\ClientCompatiblePlus.ico"
+
 CLIENTEDONKEYPLUS       ICON                    "res\\ClientDefaultPlus.ico"
+
 CLIENTCOMPATIBLE        ICON                    "res\\ClientCompatible.ico"
+
 CLIENTAMULE             ICON                    "res\\ClientAMule.ico"
+
 CLIENTAMULEPLUS         ICON                    "res\\ClientAMulePlus.ico"
+
 CLIENTLPHANT            ICON                    "res\\ClientLPhant.ico"
+
 CLIENTLPHANTPLUS        ICON                    "res\\ClientLPhantPlus.ico"
+
 SRCDOWNLOADING          ICON                    "res\\Client0.ico"
+
 SRCCONNECTING           ICON                    "res\\Client1.ico"
+
 SRCONQUEUE              ICON                    "res\\Client2.ico"
+
 SRCNNPQF                ICON                    "res\\Client3.ico"
+
 SRCUNKNOWN              ICON                    "res\\Client4.ico"
+
 CONTACT0                ICON                    "res\\Contact0.ico"
+
 CONTACT1                ICON                    "res\\Contact1.ico"
+
 CONTACT2                ICON                    "res\\Contact2.ico"
+
 CONTACT3                ICON                    "res\\Contact3.ico"
+
 CONTACT4                ICON                    "res\\Contact4.ico"
+
 KADFILESEARCH           ICON                    "res\\KadFileSearch.ico"
+
 KADWORDSEARCH           ICON                    "res\\KadWordSearch.ico"
+
 KADNODESEARCH           ICON                    "res\\KadNodeSearch.ico"
+
 KADSTOREFILE            ICON                    "res\\KadStoreFile.ico"
+
 KADSTOREWORD            ICON                    "res\\KadStoreWord.ico"
+
 SPEED                   ICON                    "res\\Speed.ico"
+
 SPEEDMIN                ICON                    "res\\SpeedMin.ico"
+
 SPEEDMAX                ICON                    "res\\SpeedMax.ico"
+
 RESTOREWINDOW           ICON                    "res\\RestoreWindow.ico"
+
 EXIT                    ICON                    "res\\Exit.ico"
+
 CLIENTSKNOWN            ICON                    "res\\ClientsKnown.ico"
+
 CLIENTSONQUEUE          ICON                    "res\\ClientsOnQueue.ico"
+
 KADCURRENTSEARCHES      ICON                    "res\\KadCurrentSearches.ico"
+
 KADCONTACTLIST          ICON                    "res\\KadContactList.ico"
+
 KADBOOTSTRAP            ICON                    "res\\KadBootstrap.ico"
+
 IPFILTER                ICON                    "res\\IPFilter.ico"
+
 PAUSE                   ICON                    "res\\Pause.ico"
+
 PREVIEW                 ICON                    "res\\Preview.ico"
+
 RESUME                  ICON                    "res\\Start.ico"
+
 STOP                    ICON                    "res\\Stop.ico"
+
 RENAME                  ICON                    "res\\FileRename.ico"
+
 ED2KLINK                ICON                    "res\\eD2kLink.ico"
+
 PASTELINK               ICON                    "res\\eD2kLinkPaste.ico"
+
 FILEINFO                ICON                    "res\\FileInfo.ico"
+
 MEDIAINFO               ICON                    "res\\MediaInfo.ico"
+
 METADATA                ICON                    "res\\MetaData.ico"
+
 FILECOMMENTS            ICON                    "res\\FileComments.ico"
+
 FILECOMMENTSOVL         ICON                    "res\\FileCommentsOvl.ico"
+
 FILERENAME              ICON                    "res\\FileRename.ico"
+
 CATEGORY                ICON                    "res\\Category.ico"
+
 OPENFILE                ICON                    "res\\FileOpen.ico"
+
 OPENFOLDER              ICON                    "res\\FolderOpen.ico"
+
 FILEPRIORITY            ICON                    "res\\FilePriority.ico"
+
 PRIORITY                ICON                    "res\\Priority.ico"
+
 FRIENDSLOT              ICON                    "res\\FriendSlot.ico"
+
 ADDFRIEND               ICON                    "res\\UserAdd.ico"
+
 DELETEFRIEND            ICON                    "res\\UserDelete.ico"
+
 CLIENTDETAILS           ICON                    "res\\UserDetails.ico"
+
 VIEWFILES               ICON                    "res\\UserFiles.ico"
+
 SENDMESSAGE             ICON                    "res\\UserMessage.ico"
+
 SCHEDULER               ICON                    "res\\Scheduler.ico"
+
 WIZARD                  ICON                    "res\\Wizard.ico"
+
 LISTADD                 ICON                    "res\\ListAdd.ico"
+
 LISTREMOVE              ICON                    "res\\ListRemove.ico"
+
 RESTORE                 ICON                    "res\\Restore.ico"
+
 EXPANDALL               ICON                    "res\\ExpandAll.ico"
+
 EXPANDMAIN              ICON                    "res\\ExpandAll2.ico"
+
 COLLAPSE                ICON                    "res\\Collapse.ico"
+
 DELETE                  ICON                    "res\\Delete.ico"
+
 CLEARCOMPLETE           ICON                    "res\\DeleteAll.ico"
+
 DELETESELECTED          ICON                    "res\\DeleteSelected.ico"
+
 COPY                    ICON                    "res\\Copy.ico"
+
 COPYSELECTED            ICON                    "res\\CopySelected.ico"
+
 COPYVISIBLE             ICON                    "res\\CopyVisible.ico"
+
 EXPORTALL               ICON                    "res\\ExportAll.ico"
+
 SEARCHFILETYPE_ANY      ICON                    "res\\FileTypeAny.ico"
+
 SEARCHFILETYPE_ARCHIVE  ICON                    "res\\FileTypeArchive.ico"
+
 SEARCHFILETYPE_AUDIO    ICON                    "res\\FileTypeAudio.ico"
+
 SEARCHFILETYPE_CDIMAGE  ICON                    "res\\FileTypeCDImage.ico"
+
 SEARCHFILETYPE_PICTURE  ICON                    "res\\FileTypePicture.ico"
+
 SEARCHFILETYPE_PROGRAM  ICON                    "res\\FileTypeProgram.ico"
+
 SEARCHFILETYPE_VIDEO    ICON                    "res\\FileTypeVideo.ico"
+
 SEARCHFILETYPE_DOCUMENT ICON                    "res\\FileTypeDocument.ico"
+
 RATING_NOTRATED         ICON                    "res\\FileRating0.ico"
+
 RATING_FAKE             ICON                    "res\\FileRating1.ico"
+
 RATING_POOR             ICON                    "res\\FileRating2.ico"
+
 RATING_FAIR             ICON                    "res\\FileRating3.ico"
+
 RATING_GOOD             ICON                    "res\\FileRating4.ico"
+
 RATING_EXCELLENT        ICON                    "res\\FileRating5.ico"
+
 FILESHAREDSERVER        ICON                    "res\\FileSharedServer.ico"
+
 FILESHAREDKAD           ICON                    "res\\FileSharedKad.ico"
+
 SPLITWINDOW             ICON                    "res\\SplitWindow.ico"
+
 DOWNLOADFILES           ICON                    "res\\DownloadFiles.ico"
+
 COLLECTION_VIEW         ICON                    "res\\emuleCollView.ico"
+
 COLLECTION_ADD          ICON                    "res\\emuleCollAdd.ico"
+
 COLLECTION_EDIT         ICON                    "res\\emuleCollEdit.ico"
+
 COLLECTION_SEARCH       ICON                    "res\\emuleCollSearch.ico"
+
 ALLFILES                ICON                    "res\\all.ico"
+
 INCOMPLETE              ICON                    "res\\incomplete.ico"
+
 INCOMING                ICON                    "res\\Incoming.ico"
+
 SEARCHEDIT              ICON                    "res\\SearchEdit.ico"
+
 FILTERCLEAR2            ICON                    "res\\clear2.ico"
+
 FILTERCLEAR1            ICON                    "res\\clear1.ico"
+
 ARCHIVE_PREVIEW         ICON                    "res\\ArchivePreview.ico"
+
 OVERLAYSECUREOBFU       ICON                    "res\\Clientsecurehasobfuhovl.ico"
+
 OVERLAYOBFU             ICON                    "res\\Clientobfuovl.ico"
+
 SHAREDFOLDEROVL         ICON                    "res\\SharedFolderOvl.ico"
+
 NOACCESSFOLDEROVL       ICON                    "res\\NoAccessFolderOvl.ico"
+
 SMILEY_SMILE            ICON                    "res\\Smiley_Smile.ico"
+
 SMILEY_CRY              ICON                    "res\\Smiley_Cry.ico"
+
 SMILEY_DISGUST          ICON                    "res\\Smiley_Disgust.ico"
+
 SMILEY_HAPPY            ICON                    "res\\Smiley_Happy.ico"
+
 SMILEY_LAUGH            ICON                    "res\\Smiley_Laugh.ico"
+
 SMILEY_LOVE             ICON                    "res\\Smiley_Love.ico"
+
 SMILEY_SAD              ICON                    "res\\Smiley_Sad.ico"
+
 SMILEY_SEALED           ICON                    "res\\Smiley_Sealed.ico"
+
 SMILEY_SKEPTIC          ICON                    "res\\Smiley_Skeptic.ico"
+
 SMILEY_TONGUE           ICON                    "res\\Smiley_Tongue.ico"
+
 SMILEY_WINK             ICON                    "res\\Smiley_Wink.ico"
+
 SMILEY_PH34R            ICON                    "res\\Smiley_Ph34r.ico"
+
 SMILEY_INTEREST         ICON                    "res\\Smiley_Interest.ico"
+
 SMILEY_OMG              ICON                    "res\\Smiley_omg.ico"
+
 SMILEY_SADQ             ICON                    "res\\Smiley_sadq.ico"
+
 SMILEY_SMILEQ           ICON                    "res\\Smiley_smileq.ico"
+
 SMILEY_LOOKSIDE         ICON                    "res\\Smiley_lookside.ico"
+
 BROWSEFOLDERSMALL       ICON                    "res\\Browse8.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1502,12 +1723,19 @@ BROWSEFOLDERSMALL       ICON                    "res\\Browse8.ico"
 //
 
 IDB_UP                  BITMAP                  "res\\ListViewSortUp.bmp"
+
 IDB_DOWN                BITMAP                  "res\\ListViewSortDown.bmp"
+
 IDB_UP2X                BITMAP                  "res\\ListViewSortUp2x.bmp"
+
 IDB_DOWN2X              BITMAP                  "res\\ListViewSortDown2x.bmp"
+
 TRAYBTN_BLUE            BITMAP                  "res\\TrayBtnBlue.bmp"
+
 TRAYBTN_METALLIC        BITMAP                  "res\\TrayBtnMetallic.bmp"
+
 TRAYBTN_HOMESTEAD       BITMAP                  "res\\TrayBtnHomestead.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1516,6 +1744,7 @@ TRAYBTN_HOMESTEAD       BITMAP                  "res\\TrayBtnHomestead.bmp"
 
 IDR_HTTPDOWNLOAD_ANI    AVI                     "res\\inetdownload.avi"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // JPG
@@ -1523,14 +1752,18 @@ IDR_HTTPDOWNLOAD_ANI    AVI                     "res\\inetdownload.avi"
 
 ABOUT                   JPG                     "res\\logo.jpg"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // GIF
 //
 
 IDR_TASKBAR             GIF                     "res\\taskbarNotifier.gif"
+
 IDR_WIZ1_WATERMARK      GIF                     "res\\mule_wiz.gif"
+
 IDR_WIZ1_HEADER         GIF                     "res\\mule_wiz_hdr.gif"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1538,6 +1771,7 @@ IDR_WIZ1_HEADER         GIF                     "res\\mule_wiz_hdr.gif"
 //
 
 IDR_WIDECHARLOWERMAP    WIDECHARMAP             "res\\WideCharLowerMap.bin"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1607,24 +1841,43 @@ END
 //
 
 IDR_HTML_MINIMULE       HTML                    "res\\MiniMule.htm"
+
 CONNECTED.GIF           HTML                    "res\\Connected.gif"
+
 CONNECTEDNOTNOT.GIF     HTML                    "res\\ConnectedNotNot.gif"
+
 CONNECTEDNOTLOW.GIF     HTML                    "res\\ConnectedNotLow.gif"
+
 CONNECTEDNOTHIGH.GIF    HTML                    "res\\ConnectedNotHigh.gif"
+
 CONNECTEDLOWNOT.GIF     HTML                    "res\\ConnectedLowNot.gif"
+
 CONNECTEDLOWLOW.GIF     HTML                    "res\\ConnectedLowLow.gif"
+
 CONNECTEDLOWHIGH.GIF    HTML                    "res\\ConnectedLowHigh.gif"
+
 CONNECTEDHIGHNOT.GIF    HTML                    "res\\ConnectedHighNot.gif"
+
 CONNECTEDHIGHLOW.GIF    HTML                    "res\\ConnectedHighLow.gif"
+
 CONNECTEDHIGHHIGH.GIF   HTML                    "res\\ConnectedHighHigh.gif"
+
 UPLOAD.GIF              HTML                    "res\\Upload.gif"
+
 DOWNLOAD.GIF            HTML                    "res\\Download.gif"
+
 COMPLETED.GIF           HTML                    "res\\FileInfo.gif"
+
 FREESPACE.GIF           HTML                    "res\\HardDisk.gif"
+
 OPENINCOMING.GIF        HTML                    "res\\Incoming.gif"
+
 RESTOREWINDOW.GIF       HTML                    "res\\RestoreWindow.gif"
+
 TABLEBACKGND.GIF        HTML                    "res\\MiniMuleBack.gif"
+
 PREFERENCES.GIF         HTML                    "res\\Preferences.gif"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1645,10 +1898,42 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+    END
+
+    IDD_TRANSFER, DIALOG
+    BEGIN
+    END
+
+    IDD_SEARCH, DIALOG
+    BEGIN
+    END
+
+    IDD_STATISTICS, DIALOG
+    BEGIN
+    END
+
+    IDD_PPG_STATS, DIALOG
+    BEGIN
+    END
+
+    IDD_SPLASH, DIALOG
+    BEGIN
+    END
+
+    IDD_PPG_SERVER, DIALOG
+    BEGIN
+    END
+
     IDD_PPG_GENERAL, DIALOG
     BEGIN
         VERTGUIDE, 11
         VERTGUIDE, 169
+    END
+
+    IDD_PPG_DIRECTORIES, DIALOG
+    BEGIN
     END
 
     IDD_PPG_CONNECTION, DIALOG
@@ -1662,6 +1947,10 @@ BEGIN
         VERTGUIDE, 506
         HORZGUIDE, 17
         HORZGUIDE, 285
+    END
+
+    IDD_WIZARD, DIALOG
+    BEGIN
     END
 
     IDD_FILEINFO, DIALOG
@@ -1682,6 +1971,14 @@ BEGIN
         BOTTOMMARGIN, 172
     END
 
+    IDD_COMMENT, DIALOG
+    BEGIN
+    END
+
+    IDD_CAT, DIALOG
+    BEGIN
+    END
+
     IDD_PPG_DISPLAY, DIALOG
     BEGIN
         VERTGUIDE, 4
@@ -1695,6 +1992,34 @@ BEGIN
     IDD_PPG_WEBSRV, DIALOG
     BEGIN
         VERTGUIDE, 11
+    END
+
+    IDD_WIZ1_WELCOME, DIALOG
+    BEGIN
+    END
+
+    IDD_WIZ1_GENERAL, DIALOG
+    BEGIN
+    END
+
+    IDD_WIZ1_PORTS, DIALOG
+    BEGIN
+    END
+
+    IDD_WIZ1_ULDL_PRIO, DIALOG
+    BEGIN
+    END
+
+    IDD_WIZ1_UPLOAD, DIALOG
+    BEGIN
+    END
+
+    IDD_WIZ1_SERVER, DIALOG
+    BEGIN
+    END
+
+    IDD_WIZ1_END, DIALOG
+    BEGIN
     END
 
     IDD_KADEMLIAWND, DIALOG
@@ -1712,14 +2037,148 @@ BEGIN
         BOTTOMMARGIN, 211
     END
 
+    IDD_META_DATA, DIALOG
+    BEGIN
+    END
+
     IDD_ED2KLINK, DIALOG
     BEGIN
         VERTGUIDE, 4
     END
+
+    IDD_ADDSOURCE, DIALOG
+    BEGIN
+    END
+
+    IDD_COLLECTIONCREATEDIALOG, DIALOG
+    BEGIN
+    END
+
+    IDD_COLLECTIONVIEWDIALOG, DIALOG
+    BEGIN
+    END
+
+    IDD_ARCHPREV, DIALOG
+    BEGIN
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_PPG_CONNECTION AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_PPG_STATS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SPLASH AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 #endif    // 非特定语言 resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PPG_STUN DIALOGEX 0, 0, 231, 302
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "STUN Configuration"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "STUN Configuration",IDC_STUN_GROUP,3,3,223,101
+    CONTROL         "Enable STUN",IDC_ENABLE_STUN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,16,211,10
+    LTEXT           "STUN Servers:\n(example: stun.xxx.net:3478|stun.xxx.it:3478)",IDC_STUN_SERVER_LBL,10,55,201,17
+    EDITTEXT        IDC_STUN_SERVER,10,79,210,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "NatTest",IDC_TEST_STUN,144,30,76,18
+    PUSHBUTTON      "GetStunServer",IDC_GET_STUN_SERVER,9,30,115,18
+    GROUPBOX        "Explanation of STUN Traversal",IDC_STUN_TRAVERSAL,3,107,223,184
+    LTEXT           "1.\n2.\n3.\n4",IDC_STUN_TRAVERSAL_LLB,10,117,210,161
+END
+
+IDD_NAT_TEST DIALOGEX 0, 0, 231, 249
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "NatTest"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "StartTest",IDC_START_TEST,6,223,94,19
+    PUSHBUTTON      "OpenFirewall",IDC_OPEN_FIREWALL,131,223,94,19
+    EDITTEXT        IDC_EDIT2,7,7,217,209,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+STUNNAT                 ICON                    "res\\StunNat.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PPG_STUN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 295
+    END
+
+    IDD_NAT_TEST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 242
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_PPG_STUN AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_NAT_TEST AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -1779,6 +2238,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 SPAM                    ICON                    "res\\Spam.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -2674,6 +3134,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_LOG_LEVEL           "Log level"
+    IDS_STUN_SERVER         "STUN Servers:\n(example: stun.xxx.net:3478|stun.xxx.it:3478)"
     IDS_NEWMSG              "New Message from '%s' (IP:%s)"
     IDS_PREF_STARTNEXTFILECATONLY "Only in same category"
     IDS_LOG_ULDL_EVENTS     "Log upload/download events"
@@ -2921,6 +3382,7 @@ STRINGTABLE
 BEGIN
     IDS_ERR_TOOLARGEFILE    "File larger than the supported size of the edonkey protocol (>=256GB)"
     IDS_MSGONLYFRIENDS      "Accept from friends only"
+    IDS_PW_STUN             "STUN/NAT"
     IDS_DAY_MO_SA           "Mon-Sat"
     IDS_LIMITSOURCES        "Limit sources"
     IDS_LIMITCONS5SEC       "Limit connections/5secs"
@@ -2970,6 +3432,7 @@ BEGIN
     IDS_DL_RESUMENEXT       "Resume Next Paused"
     IDS_STARTPRIO           "Priority for this category"
     IDS_PREF_STARTNEXTFILECAT "Prefer same category"
+    IDS_ENABLE_STUN         "Enable STUN Penetration"
     IDS_SOFTFILES           "Soft File Limit"
     IDS_HARDFILES           "Hard File Limit"
     IDS_FILTER              "Filter"
@@ -3729,9 +4192,54 @@ BEGIN
     IDS_DONOTASKAGAIN       "Don't ask me again"
     IDS_POPULARITY          "Popularity Rank"
     IDS_SHOWWIN7TASKBARGOODIES "Enable Windows 7 taskbar effects"
+    IDS_TEST_STUN           "NatTest"
+    IDS_STUN_SERVER_INVALID "Invalid STUN Server address translation"
+    IDS_GET_STUN_SERVER     "GetStunServer"
+    IDS_STUN_SERVER_EMPTY   "Please enter a STUN server address"
+    IDS_STUN_OPENING_FIREWALL_SETTINGS "Opening firewall settings...\r\n"
+    IDS_STUN_GROUP          "STUN Configuration"
+    IDS_STUN_TRAVERSAL_LLB  "1. Use the router for PPPoE dial-up whenever possible instead of using the optical modem for PPPoE dial-up.\n(If using the optical modem for dial-up, use the DMZ function of the optical modem to direct the host to your router.)\n\n 2. The likelihood of obtaining a high ID is higher under a Full Cone NAT (NAT1) network. Click the ""NATTEST"" button to test your network type.\n(You can still attempt to connect even if it is not NAT1.)\n\n3. The router needs to have the UPNP function enabled (for automatic port mapping).\n\n4. The router needs to enable Full Cone NAT to obtain a high ID."
+    IDS_STUN_TRAVERSAL      "Explanation of STUN Traversal"
+    IDS_PARSED_STUN_SERVER  "Parsed STUN Servers\r\n"
 END
 
-STRINGTABLE 
+STRINGTABLE
+BEGIN
+    IDS_STUN_DNS_RESOLUTION_FAILED "STUN DNS resolution failed for server\r\n"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TESTING_STUN_SERVER "Starting STUN test:\r\n"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_STUN_WILL_NAT_TEST  "Will NAT test first %d server(s)...\r\n\r\n"
+    IDS_STUN_TEST_CONNECTING_TO "TEST %d/%d  Connecting to: %s:%d\r\n"
+    IDS_SERVER_LIST_FORMAT  "%02d. %s (%s:%d)\r\n"
+    IDS_STUN_DETEECTING_NAT_TYPE "Detecting NAT type...\r\n"
+    IDS_STUN_CONNECTION_FAILED "Connection failed\r\n\r\n"
+    IDS_STUN_CONNECTED_SUCCESSFULLY "Connected successfully!\r\n"
+    IDS_STUN_NAT_DETECTION_RESULTS "NAT Detection Results:\r\n"
+    IDS_STUN_ACTUAL_LOCAL_PORT "Actual Local Port: %d\r\n"
+    IDS_STUN_PORT_PRESERVATION "Port Preservation:   %s\r\n"
+    IDS_STUN_HAIRPIN_SUPPORT "Hairpin Support:   %s\r\n"
+    IDS_STUN_YES            "YES"
+    IDS_STUN_NO             "NO"
+    IDS_STUN_FIREWALL_OPEN_ALL_FAILED 
+                            "All methods failed to open firewall settings\r\nPlease open it manually from Control Panel."
+    IDS_STUN_OPEN_INTERNET  "Open Internet"
+    IDS_STUN_FULL_CONE_NAT  "Full Cone NAT"
+    IDS_STUN_RESTRICTED_CONE_NAT "Restricted Cone NAT"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_STUN_FINAL_DETECTION_SUMMARY "FINAL DETECTION SUMMARY\r\n"
+END
+
+STRINGTABLE
 BEGIN
     IDS_DROPNONEEDEDSRCS    "Drop NNS"
     IDS_DROPQUEUEFULLSRCS   "Drop FullQ"
@@ -3741,10 +4249,6 @@ BEGIN
     IDS_DROPCONNECTING      "Drop Connecting"
     IDS_STOP_CLIENT         "Stop this client"
     IDS_SubMenu_Drop        "&Drop"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_13RATIO             "Use amount based 1:3 ratio if upload < 11"
     IDS_PPG_MAELLA_MTU_STATIC "MTU (500..1500, default 1340)"
     IDS_PPG_MAELLA_NAFC_CHECK02 "NAFC Full Control U/D Limits"
@@ -3752,6 +4256,10 @@ BEGIN
     IDS_AVG_DATARATE_TIME   "Show Average Datarate over seconds: %u"
     IDS_XTREMESETTINGS      "Xtreme"
     IDS_ZOOMSTATIC          "Zoom: %u"
+END
+
+STRINGTABLE
+BEGIN
     IDS_AVGQR               "AvgQR"
     IDS_USEDOUBLESENDSIZE   "Use Double Sendsize"
     IDS_LOGDROP             "Log Drop actions"
@@ -3760,27 +4268,19 @@ BEGIN
     IDS_ANTILEECHERNAME_CHECK "Detect Leecher by UserName"
     IDS_POWERRELEASE        "PowerRelease"
     IDS_DONTREMOVESTATICSERVER "Don't remove static server"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_LISTREQUESTED       "list requested files"
     IDS_HIGHPRIOPROCESS     "High"
     IDS_ABOVENORMALPROCESS  "Above Normal"
     IDS_NORMALPROCESS       "Normal"
     IDS_PROCESSGROUP        "Process Priority"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_COUNTRYNAME_SHORT   "Display 2 letters"
     IDS_COUNTRYNAME_MID     "Display 3 letters"
     IDS_COUNTRYNAME_LONG    "Display full name"
-    IDS_COUNTRYNAME_SHOWFLAG "ShowFlag"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
+    IDS_COUNTRYNAME_SHOWFLAG "ShowFlag"
     IDS_IP2COUNTRY_MSG1     "IP2Country uses the IP-to-Country Database provided by WebHosting.Info"
     IDS_IP2COUNTRY_MSG2     "(http://www.webhosting.info), available from http://ip-to-country.webhosting.info"
     IDS_IP2COUNTRY_LOADED   "IP2Country loaded"
@@ -3796,11 +4296,11 @@ BEGIN
     IDS_IP2COUNTRY_NALONG   "Not Applicable"
     IDS_IP2COUNTRY_NASHORT  "N/A"
     IDS_IP2COUNTRY_LOADED2  "Loaded IP2Country from ""%s"" in %ums"
-    IDS_ACCURATEGRAPH       "accurate"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
+    IDS_ACCURATEGRAPH       "accurate"
     IDS_SMOOTHGRAPH         "smooth"
     IDS_MULTIQUEUE          "One queue per file (Multiqueue)"
     IDS_RETRYCONNECTIONATTEMPTS "Retry failed TCP connection attempts"
@@ -3818,11 +4318,11 @@ BEGIN
     IDS_DOWNHISTORY_REMOVE_QUESTION_MULTIPLE 
                             "Do you really want to remove selected files from downloaded history?"
     IDS_DOWNHISTORY_SHARED  "Shared"
-    IDS_DOWNHISTORY_CLEAR   "Clear downloaded history"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
+    IDS_DOWNHISTORY_CLEAR   "Clear downloaded history"
     IDS_DOWNHISTORY_SHOWSHARED "Show shared files"
     IDS_DOWNHISTORY_ACTIONS "Actions"
     IDS_DOWNHISTORY_CLEAR_QUESTION 
@@ -3837,14 +4337,18 @@ BEGIN
     IDS_LEECHER_ACTION_BAN  "Ban"
     IDS_LEECHER_ACTION_REDUCE "Reduce score"
     IDS_ANTILEECHERBADHELLO_CHECK "Detect wrong Hello-Tag"
-    IDS_ANTILEECHERSNAFU_CHECK "Detect bad Tags"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
+    IDS_ANTILEECHERSNAFU_CHECK "Detect bad Tags"
     IDS_ANTILEECHERMOD_CHECK "Detect Leecher by Modstring"
     IDS_ANTILEECHERTHIEF_CHECK "Detect Nick- / Modthiefs"
     IDS_ANTILEECHERSPAMMER_CHECK "Detect Spammers"
+END
+
+STRINGTABLE
+BEGIN
     IDS_ANTILEECHERXSEXPLOITER_CHECK "Detect XS-Exploiter"
     IDS_STATIC_LEECHERCOMMUNITY "Community Mods"
     IDS_STATIC_LEECHERGHOST "Ghost-Mods"
@@ -3854,15 +4358,15 @@ BEGIN
                             "New Xtreme-Version available \n Do you want it to download ?"
     IDS_NEWDLP              "New antiLeech.dll (DLP) available"
     IDS_NEWDLPDOWNLOAD      "New antiLeech.dll (DLP) available \n Do you want it to download ?"
+END
+
+STRINGTABLE
+BEGIN
     IDS_DROPLEECHER         "Drop Leecher"
     IDS_ACTIVEDOWNLOADSBOLD "Show active downloads bold"
     IDS_UPDOWNUPLOADLIST    "Up / Down"
     IDS_MAXGLOBALSOURCES    "global sourcelimit:"
     IDS_ACCEPTSOURCES       "Accept global sourcelimit"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_ACCEPTRATIO         "Accept 1:3 session ratio if found sources > sourcelimit"
     IDS_SHOWADDITIONALGRAPH "Show additional graph-lines"
     IDS_CHECK4UPDATEMOD     "Check for new Xtreme version on startup"
@@ -3873,16 +4377,16 @@ BEGIN
     IDS_SHOWBLOCKINGRATIO   "Show socket blocking ratio"
     IDS_FUNNYNICK           "Display Funny Nick"
     IDS_AUTOUPDATEIPFILTER  "Auto-update IPFilter.dat"
+END
+
+STRINGTABLE
+BEGIN
     IDS_DROPBLOCKINGSOCKETS "Drop too frequently blocking sockets"
     IDS_LOGPARTMISMATCH     "Log size-mismatch of requested files"
     IDS_CN_UPNPTRYRANDOM    "Try to use random port on UPnP gateway"
     IDS_CN_UPNPNAT          "Enable UPnP support"
     IDS_CHUNKCHOOSER        "Chunk choosing method"
     IDS_UPLOADINSTABLE      "Warning: your upload settings seem to be too high. Please review your settings! \n look at the uploadgraph, the white or the yellow(with NAFC) line should be straight \n this message is only generated once"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_CLIENTPERCENTAGE    "Show client percentage"
     IDS_ONERELEASESLOT      "Always one release-slot"
     IDS_A_UPPRIO            "Use advanced auto-uploadpriority"
@@ -3893,35 +4397,31 @@ BEGIN
     IDS_RESETFILENAMES      "&Reset"
     IDS_SIMPLECLEANUP       "&Simple cleanup"
     IDS_INSERTTEXTCOLUMN    "&Insert text column from clipboard"
+END
+
+STRINGTABLE
+BEGIN
     IDS_MASSRENAME2         "Original filenames:"
     IDS_MASSRENAME3         "New filenames:"
     IDS_NOTENOUGHFILENAMES  "Not enough filenames in the list of new filenames. Rename not possible."
     IDS_IDENTICALFILENAMES  "Two or more equal filenames within the same directory are not allowed (Line %d). Rename not possible."
     IDS_MR                  "Mass Rename..."
     IDS_MASSRENAME_TITLE    "Mass-Rename"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_STATIC_DOWNINFO     "Download 0 = unlimited"
     IDS_ANTILEECHERUSERHASH_CHECK "Detect bad userhashes"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_UPNPSTATUS          "UPnP Status:"
     IDS_UPNPSTATUS_OK       "OK"
     IDS_UPNPSTATUS_NOTINLAN "You aren't behind a Hardware Firewall or Router"
     IDS_UPNPSTATUS_ERROR    "Can not find a UPnP Router"
     IDS_UPNPSTATUS_PORTINUSE "External NAT port in use"
     IDS_UPNPSTATUS_PORTINUSE2 "External NAT port in use: Too many retries"
+END
+
+STRINGTABLE
+BEGIN
     IDS_UPNP_REBINDTEXT     "Rebind UPnP On IP-Change"
     IDS_IMPORTPARTS         "Import parts to file..."
     IDS_IMPORTPARTS_STOP    "Stop Import parts to file"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_SR13_IMPORTPARTS_ERR_ALREADYCOMPLETE 
                             "Import aborted: Can't import to a complete file."
     IDS_SR13_IMPORTPARTS_ERR_HASHSETINCOMPLETE 
@@ -3938,24 +4438,24 @@ BEGIN
                             "File is smaller than minimal recovery block for AICH - there's no use in importing data to it."
     IDS_SR13_IMPORTPARTS_IMPORTFINISH 
                             "Import finished. %i parts were imported to %s."
+    IDS_OBFUSCATION_PADDING_LENGTH "Obfuscation-Padding-Length [10-254]"
+    IDS_GETFRIENDED2KLINK   "Copy friend link to clipboard"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_SMALL               "Small"
     IDS_PUSH_SMALL_FILE_SIZE "Small file size limit in KB [1-2048]"
-    IDS_PUSH_SMALL          "Push small files"
     IDS_TRUSTEVERYHASH      "Trust Every AICHHash (current session, not saved, not recommended)"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
-    IDS_OBFUSCATION_PADDING_LENGTH "Obfuscation-Padding-Length [10-254]"
-    IDS_GETFRIENDED2KLINK   "Copy friend link to clipboard"
     IDS_GETHTMLFRIENDED2KLINK "Copy friend link to clipboard (HTML)"
     IDS_DOWNLOADEMFRIENDSMET "Download emfriends.met"
     IDS_EMFRIENDSMETURL     "Please enter the URL of emfriends.met:"
-    IDS_ERR_FAILEDDOWNLOADEMFRIENDS "Failed to download the friendlist from %s"
+    IDS_ERR_FAILEDDOWNLOADEMFRIENDS 
+                            "Failed to download the friendlist from %s"
     IDS_GETMYFRIENDED2KLINK "Copy my friend link to clipboard"
     IDS_GETMYHTMLFRIENDED2KLINK "Copy my friend link to clipboard (HTML)"
     IDS_FRIENDLINKMENUTITLE "FriendLinks"
@@ -3968,8 +4468,51 @@ BEGIN
     IDS_ANTILEECHERFINCAN_CHECK 
                             "Detect Fincan Community Hash (CPU intensive!)"
     IDS_ENABLEKNOWN2SPLIT   "Split Known2_64.met, let unshared AICHHashsets in a single file"
+    IDS_PUSH_SMALL          "Push small files"
+END
+
+STRINGTABLE
+BEGIN
     IDS_EMULE_CTRL_DATA     "eMule control + data"
-    IDS_NETWORK_ADAPTER     "Network Adapter"
+    IDS_NETWORK_ADAPTER     "Unknown Type"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_STUN_PORT_RESTRICTED_CONE_NAT "Port Restricted Cone NAT"
+    IDS_STUN_SYMMETRIC_NAT  "Symmetric NAT"
+    IDS_STUN_SYMMETRIC_FIREWALL "Symmetric Firewall"
+    IDS_STUN_BLOCKED        "Blocked"
+    IDS_STUN_UNKNOWN_TYPE   "Unknown Type"
+    IDS_STUN_ENABLE_SPLASH_TIPS 
+                            "STUN penetration mode activated\nAttempting to establish penetration...\nAutomatic connection will start shortly"
+    IDS_STUN_NAT_TYPE       "NAT Type:%s\r\n"
+    IDS_STUN_CONNECTIVITY_ASSESSMENT "CONNECTIVITY ASSESSMENT\r\n"
+    IDS_STUN_DIRECT_HIGH_ID "Excellent: Direct High-ID connections possible\r\n"
+    IDS_STUN_TRAVERSA_HIGH_ID "Good: STUN traversal can establish High-ID\r\n"
+    IDS_STUN_HOLE_PUNCHING_REQUIRED "Moderate: P2P hole punching required\r\n"
+    IDS_STUN_RELAY_SERVER_TYPICALLY_NEEDED 
+                            "Difficult: Relay server typically needed\r\n"
+    IDS_STUN_FIREWALL_CONFIG_MAY_HELP 
+                            "Moderate: Firewall configuration may help\r\n"
+    IDS_STUN_CONNECTION_QUALITY_UNCERTAIN "Connection quality uncertain\r\n"
+    IDS_STUN_ALL_STUN_CONNECTIONS_FAILED 
+                            "All STUN server connections failed.\r\n\r\n"
+    IDS_STUN_TROUBLESHOOTING_STEPS "Troubleshooting Steps:\r\n"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_STUN_VERIFY_NETWORK_CONNECTIVITY "1.Verify network connectivity\r\n"
+    IDS_STUN_CHECK_FIREWALL_ALLOWS_UDP 
+                            "2.Check firewall allows UDP traffic\r\n"
+    IDS_STUN_TRY_DIFFERENT_STUN_SERVERS "3.Try different STUN servers\r\n"
+    IDS_STUN_VERIFY_DNS_RESOLUTION_WORKING 
+                            "4.Verify DNS resolution is working\r\n"
+    IDS_STUN_STUN_NAT_DETECTION_COMPLETED "STUN NAT Detection Completed.\r\n"
+    IDS_START_TEST          "StartTest"
+    IDS_OPEN_FIREWALL       "OpenFirewall"
+    IDS_NAT_TEST            "NatTest"
 END
 
 #endif    // 英语(美国) resources

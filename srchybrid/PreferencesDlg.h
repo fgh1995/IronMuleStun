@@ -19,6 +19,7 @@
 #endif
 #include "otherfunctions.h"
 #include "TreePropSheet.h"
+#include <CPPgStun.h>
 
 class CPreferencesDlg : public CTreePropSheet
 {
@@ -43,6 +44,10 @@ public:
 	CPPgScheduler	m_wndScheduler;
 	CPPgProxy		m_wndProxy;
 	CPPgMessages	m_wndMessages;
+	// 添加新的 STUN 设置页面
+	static BOOL m_bEnableStun;
+	static CString m_strStunServer;
+	CStunSettingsPage m_wndStun;
 #if defined(_DEBUG) || defined(USE_DEBUG_DEVICE)
 	CPPgDebug		m_wndDebug;
 #endif

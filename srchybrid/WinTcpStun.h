@@ -429,7 +429,5 @@ private:
 	}
 };
 
-// 为了保持向后兼容性，保留原来的类名
-typedef CStunClient CTcpStunClient;
 
 #endif // WINTCPSTUN_H

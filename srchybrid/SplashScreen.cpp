@@ -18,6 +18,7 @@
 #include "emule.h"
 #include "SplashScreen.h"
 #include "OtherFunctions.h"
+#include <Preferences.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -130,6 +131,14 @@ void CSplashScreen::OnPaint()
 			font.CreateFontIndirect(&lf);
 			pOldFont = dc.SelectObject(&font);
 			dc.DrawText(_T("Copyright (C) 2002-2010 Merkur"), &rc, DT_CENTER | DT_NOPREFIX);
+			rc.top += 16;
+			dc.SetTextColor(RGB(255, 0, 0));  // ºìÉ«
+			if (thePrefs.GetEnableStun())
+			{
+				//STUN penetration mode activated\nAttempting to establish penetration...\nAutomatic connection will start shortly
+				dc.DrawText(GetResString(IDS_STUN_ENABLE_SPLASH_TIPS), &rc, DT_CENTER | DT_NOPREFIX);
+			}
+			
 			if (pOldFont)
 				dc.SelectObject(pOldFont);
 			font.DeleteObject();

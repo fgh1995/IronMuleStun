@@ -514,6 +514,8 @@ BOOL	CPreferences::m_bIsRunningAeroGlass;
 bool	CPreferences::m_bPreventStandby;
 bool	CPreferences::m_bStoreSearches;
 
+bool    CPreferences::m_bEnableStun;
+CString CPreferences::m_strStunServers;
 CPreferences::CPreferences()
 {
 #ifdef _DEBUG
@@ -1904,6 +1906,8 @@ void CPreferences::SavePreferences()
 	ini.WriteString(_T("AntiLeecherFincanURL"), m_antileecherFincanURL);
 	//X-Ray :: Fincan Hash Detection :: End
 	//Xman end
+	ini.WriteInt(L"EnableStun", m_bEnableStun);
+	ini.WriteString(L"StunServers", m_strStunServers);
 }
 
 void CPreferences::ResetStatsColor(int index)
@@ -2080,6 +2084,7 @@ void CPreferences::LoadPreferences()
 	m_strBindAddrA = m_strBindAddrW;
 	m_pszBindAddrA = m_strBindAddrA.IsEmpty() ? NULL : (LPCSTR)m_strBindAddrA;
 	lastStunLocalPort = ini.GetInt(L"LastStunLocalPort", 0);
+	lastStunLocalUDPPort = ini.GetInt(L"LastStunLocalUDPPort", 0);
 	port = (uint16)ini.GetInt(L"Port", 0);
 	if (port == 0)
 		port = thePrefs.GetRandomTCPPort();
@@ -2569,6 +2574,8 @@ void CPreferences::LoadPreferences()
 	m_antileecherFincanURL = ini.GetString(_T("AntiLeecherFincanURL"), _T(""));
 	//X-Ray :: Fincan Hash Detection :: End
 	//Xman end
+	m_bEnableStun = ini.GetBool(L"EnableSTUN", false);
+	m_strStunServers = ini.GetString(L"StunServers");
 }
 
 WORD CPreferences::GetWindowsVersion(){

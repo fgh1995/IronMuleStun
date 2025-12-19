@@ -1,0 +1,8 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(D:\Development\Src\Windows\C++\IronMuleStun\srchybrid\lang\dynamic\languages - Chinese (P.R.C.).dll) 与 Linker 的 OutputFile 属性值(D:\Development\Src\Windows\C++\IronMuleStun\srchybrid\lang\dynamic\zh_CN.dll)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(992,5): warning MSB8012: TargetName(languages - Chinese (P.R.C.)) 与 Linker 的 OutputFile 属性值(zh_CN)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+  zh_CN.vcxproj -> D:\Development\Src\Windows\C++\IronMuleStun\srchybrid\lang\dynamic\languages - Chinese (P.R.C.).dll
+  系统找不到指定的文件。
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppCommon.targets(113,5): error MSB3073: 命令“if not exist ..\debug\lang md ..\debug\lang
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppCommon.targets(113,5): error MSB3073: copy "D:\Development\Src\Windows\C++\IronMuleStun\srchybrid\lang\dynamic\languages - Chinese (P.R.C.).dll" ..\debug\lang\languages - Chinese (P.R.C.).dll
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppCommon.targets(113,5): error MSB3073: 
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppCommon.targets(113,5): error MSB3073: :VCEnd”已退出，代码为 1。

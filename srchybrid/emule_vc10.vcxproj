@@ -224,6 +224,7 @@
     <ClCompile Include="CollectionFile.cpp" />
     <ClCompile Include="CommentListCtrl.cpp" />
     <ClCompile Include="CorruptionBlackBox.cpp" />
+    <ClCompile Include="CPPgStun.cpp" />
     <ClCompile Include="DeadSourceList.cpp" />
     <ClCompile Include="DLP.cpp" />
     <ClCompile Include="DownloadClient.cpp" />
@@ -262,6 +263,7 @@
     </ClCompile>
     <ClCompile Include="MMServer.cpp" />
     <ClCompile Include="MMSocket.cpp" />
+    <ClCompile Include="NatTestDlg.cpp" />
     <ClCompile Include="OtherFunctions.cpp" />
     <ClCompile Include="Packets.cpp" />
     <ClCompile Include="Parser.cpp">
@@ -318,6 +320,7 @@
     </ClCompile>
     <ClCompile Include="StringConversion.cpp" />
     <ClCompile Include="stun.cxx" />
+    <ClCompile Include="StunManager.cpp" />
     <ClCompile Include="TimeTick.cpp" />
     <ClCompile Include="udp.cxx" />
     <ClCompile Include="UDPSocket.cpp" />
@@ -665,6 +668,11 @@
     <None Include="res\HardDisk.gif" />
     <None Include="res\HardDisk.ico" />
     <None Include="res\Help.ico" />
+    <None Include="res\html1.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="res\icon1.ico" />
+    <None Include="res\icon2.ico" />
     <None Include="res\Import.ico" />
     <None Include="res\Incoming.gif" />
     <None Include="res\Incoming.ico" />
@@ -773,6 +781,7 @@
     <None Include="res\StatsTime.ico" />
     <None Include="res\StatsYear.ico" />
     <None Include="res\Stop.ico" />
+    <None Include="res\StunNat.ico" />
     <None Include="res\TaskbarNotifier.gif" />
     <None Include="res\Tools.ico" />
     <None Include="res\Transfer.ico" />
@@ -826,6 +835,7 @@
     <ClInclude Include="CollectionFile.h" />
     <ClInclude Include="CommentListCtrl.h" />
     <ClInclude Include="CorruptionBlackBox.h" />
+    <ClInclude Include="CPPgStun.h" />
     <ClInclude Include="DeadSourceList.h" />
     <ClInclude Include="Debug_FileSize.h" />
     <ClInclude Include="DebugHelpers.h" />
@@ -862,6 +872,7 @@
     <ClInclude Include="MediaInfo.h" />
     <ClInclude Include="MMServer.h" />
     <ClInclude Include="MMSocket.h" />
+    <ClInclude Include="NatTestDlg.h" />
     <ClInclude Include="Opcodes.h" />
     <ClInclude Include="OtherFunctions.h" />
     <ClInclude Include="Packets.h" />
@@ -897,6 +908,7 @@
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="StringConversion.h" />
     <ClInclude Include="stun.h" />
+    <ClInclude Include="StunManager.h" />
     <ClInclude Include="ThrottledSocket.h" />
     <ClInclude Include="TimeTick.h" />
     <ClInclude Include="Types.h" />

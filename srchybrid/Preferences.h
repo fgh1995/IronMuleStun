@@ -1437,6 +1437,13 @@ public:
 	static uint16	GetRandomTCPPort();
 	static uint16	GetRandomUDPPort();
 
+	static bool m_bEnableStun;
+	static bool GetEnableStun() { return m_bEnableStun; }
+	static void SetEnableStun(bool bEnable) { m_bEnableStun = bEnable; }
+	static CString m_strStunServers;
+	static CString GetStunServer() { return m_strStunServers; }
+	static void SetStunServer(const CString& strServer) { m_strStunServers = strServer; }
+
 protected:
 	static	CString m_strFileCommentsFilePath;
 	static	Preferences_Ext_Struct* prefsExt;

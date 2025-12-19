@@ -834,6 +834,15 @@
     <ClCompile Include="stun.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CPPgStun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StunManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NatTestDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="MD4_asm.asm">
@@ -1673,6 +1682,16 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="res\fileimportparts.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\html1.htm" />
+    <None Include="res\icon1.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\icon2.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\StunNat.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -2527,6 +2546,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPPgStun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StunManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NatTestDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

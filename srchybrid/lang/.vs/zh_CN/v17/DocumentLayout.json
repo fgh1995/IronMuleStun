@@ -1,0 +1,49 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Development\\Src\\Windows\\C\u002B\u002B\\IronMuleStun\\srchybrid\\lang\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BFCEE1BE-5DC9-4CDF-B55E-6DEDFC4FF782}|zh_CN.vcxproj|D:\\Development\\Src\\Windows\\C\u002B\u002B\\IronMuleStun\\srchybrid\\lang\\zh_CN.rc||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BFCEE1BE-5DC9-4CDF-B55E-6DEDFC4FF782}|zh_CN.vcxproj|solutionrelative:zh_CN.rc||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "zh_CN.rc",
+              "DocumentMoniker": "D:\\Development\\Src\\Windows\\C\u002B\u002B\\IronMuleStun\\srchybrid\\lang\\zh_CN.rc",
+              "RelativeDocumentMoniker": "zh_CN.rc",
+              "ToolTip": "D:\\Development\\Src\\Windows\\C\u002B\u002B\\IronMuleStun\\srchybrid\\lang\\zh_CN.rc",
+              "RelativeToolTip": "zh_CN.rc",
+              "ViewState": "AgIAAJ0HAAAAAAAAAAAewLEHAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2025-12-17T15:42:44.639Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

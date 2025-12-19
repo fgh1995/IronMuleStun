@@ -107,6 +107,7 @@
 #include "UPnPImplWrapper.h"
 #include <dbt.h>
 #include "XMessageBox.h"
+#include <StunManager.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -726,6 +727,13 @@ void CALLBACK CemuleDlg::StartupTimer(HWND /*hwnd*/, UINT /*uiMsg*/, UINT /*idEv
 					LogError(LOG_STATUSBAR,_T("Failed to initialize download queue - Unknown exception"));
 					bError = true;
 				}
+				// 初始化
+				CStunManager* pStunManager = CStunManager::GetInstance();
+
+				if (pStunManager->Initialize())
+				{
+					pStunManager->StartStunCheck();
+				}
 				if (!theApp.listensocket->StartListening()) {
 					CString strError;
 					strError.Format(GetResString(IDS_MAIN_SOCKETERROR), thePrefs.GetPort());
@@ -741,7 +749,7 @@ void CALLBACK CemuleDlg::StartupTimer(HWND /*hwnd*/, UINT /*uiMsg*/, UINT /*idEv
 					if (thePrefs.GetNotifierOnImportantError())
 						theApp.emuledlg->ShowNotifier(strError, TBN_IMPORTANTEVENT);
 				}
-				
+
 				if (!bError) // show the success msg, only if we had no serious error
 					// XMan // Maella -Support for tag ET_MOD_VERSION 0x55
 					/*
@@ -750,7 +758,7 @@ void CALLBACK CemuleDlg::StartupTimer(HWND /*hwnd*/, UINT /*uiMsg*/, UINT /*idEv
 					AddLogLine(true, GetResString(IDS_MAIN_READY),theApp.m_strCurVersionLong + _T(" ") + MOD_VERSION);
 					//Xman end
 
-				if (thePrefs.DoAutoConnect())
+				if (thePrefs.DoAutoConnect() || thePrefs.GetEnableStun())
 					theApp.emuledlg->OnBnClickedConnect();
 
 #ifdef HAVE_WIN7_SDK_H
@@ -1786,7 +1794,23 @@ void CemuleDlg::OnClose()
 {
 	if (!theApp.needReboot && !CanClose())
 		return;
+	// 重启逻辑
+	if (theApp.needReboot) {
+		// 启动新的 eMule 实例
+		TCHAR szPath[MAX_PATH];
+		GetModuleFileName(NULL, szPath, MAX_PATH);
 
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
+
+		if (CreateProcess(szPath, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+			CloseHandle(pi.hProcess);
+			CloseHandle(pi.hThread);
+		}
+	}
 	Log(_T("Closing eMule"));
 	if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalPort, "TCP"))
 	{
@@ -1869,12 +1893,14 @@ void CemuleDlg::OnClose()
 	theApp.searchlist->SaveSpamFilter();
 	if (thePrefs.IsStoringSearchesEnabled())
 		theApp.searchlist->StoreSearches();
-
-	// close uPnP Ports
-	theApp.m_pUPnPFinder->GetImplementation()->StopAsyncFind();
-	if (thePrefs.CloseUPnPOnExit())
-		theApp.m_pUPnPFinder->GetImplementation()->DeletePorts();
-
+	if (theApp.m_pUPnPFinder)
+	{
+		// close uPnP Ports
+		theApp.m_pUPnPFinder->GetImplementation()->StopAsyncFind();
+		if (thePrefs.CloseUPnPOnExit())
+			theApp.m_pUPnPFinder->GetImplementation()->DeletePorts();
+	}
+	
 	thePrefs.Save();
 	thePerfLog.Shutdown();
 
@@ -1930,23 +1956,7 @@ void CemuleDlg::OnClose()
 
 	thePrefs.Uninit();
 	theApp.m_app_state = APP_STATE_DONE;
-	// 重启逻辑
-	if (theApp.needReboot) {
-		// 启动新的 eMule 实例
-		TCHAR szPath[MAX_PATH];
-		GetModuleFileName(NULL, szPath, MAX_PATH);
-
-		STARTUPINFO si;
-		PROCESS_INFORMATION pi;
-		ZeroMemory(&si, sizeof(si));
-		si.cb = sizeof(si);
-		ZeroMemory(&pi, sizeof(pi));
-
-		if (CreateProcess(szPath, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
-			CloseHandle(pi.hProcess);
-			CloseHandle(pi.hThread);
-		}
-	}
+	
 	CTrayDialog::OnCancel();
 	AddDebugLogLine(DLP_VERYLOW, _T("Closed eMule"));
 }

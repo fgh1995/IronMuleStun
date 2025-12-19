@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by emule.rc
+// Microsoft Visual C++ 生成的包含文件。
+// 供 emule.rc 使用
 //
 #define IDC_STATUSBAR                   100
 #define IDD_ABOUTBOX                    101
@@ -823,6 +823,8 @@
 #define IDS_WEB_BADLOGINATTEMPT         895
 #define IDS_ERR_TOOLARGEFILE            896
 #define IDS_MSGONLYFRIENDS              897
+#define IDD_PPG_STUN                    898
+#define IDS_PW_STUN                     898
 #define IDS_DAY_MO_SA                   899
 #define IDS_LIMITSOURCES                900
 #define IDS_LIMITCONS5SEC               901
@@ -864,6 +866,7 @@
 #define IDS_DL_RESUMENEXT               936
 #define IDS_STARTPRIO                   937
 #define IDS_PREF_STARTNEXTFILECAT       938
+#define IDS_ENABLE_STUN                 939
 #define IDS_SOFTFILES                   940
 #define IDS_HARDFILES                   941
 #define IDS_FILTER                      942
@@ -1204,6 +1207,7 @@
 #define IDS_FO_PREF_FAILED              1262
 #define IDS_FO_PREF_STARTUP             1263
 #define IDS_LOG_LEVEL                   1264
+#define IDS_STUN_SERVER                 1265
 #define IDS_NEWMSG                      1266
 #define IDS_PREF_STARTNEXTFILECATONLY   1267
 #define IDS_LOG_ULDL_EVENTS             1268
@@ -1540,6 +1544,57 @@
 #define IDS_DONOTASKAGAIN               1588
 #define IDS_POPULARITY                  1589
 #define IDS_SHOWWIN7TASKBARGOODIES      1590
+#define IDS_TEST_STUN                   1591
+#define IDS_DEFAULT_STUN                1592
+#define IDS_STUN_SERVER_INVALID         1592
+#define IDS_GET_STUN_SERVER             1593
+#define IDS_STUN_SERVER_EMPTY           1594
+#define IDS_STUN_SERVER_LIST_FORMAT     1595
+#define IDS_STUN_OPENING_FIREWALL_SETTINGS 1595
+#define IDS_STUN_GROUP                  1596
+#define IDS_STUN_TRAVERSAL_LLB          1597
+#define IDS_STUN_TRAVERSAL              1598
+#define IDS_PARSED_STUN_SERVER          1599
+#define IDS_STUN_WILL_NAT_TEST          1600
+#define IDS_STUN_TEST_CONNECTING_TO     1601
+#define IDS_SERVER_LIST_FORMAT          1602
+#define IDS_STUN_DETEECTING_NAT_TYPE    1603
+#define IDS_STUN_CONNECTION_FAILED      1604
+#define IDS_STUN_CONNECTED_SUCCESSFULLY 1605
+#define IDS_STUN_NAT_DETECTION_RESULTS  1606
+#define IDS_STUN_ACTUAL_LOCAL_PORT      1607
+#define IDS_STUN_PORT_PRESERVATION      1608
+#define IDS_STUN_HAIRPIN_SUPPORT        1609
+#define IDS_STUN_YES                    1610
+#define IDS_STUN_NO                     1611
+#define IDS_STUN_FIREWALL_OPEN_ALL_FAILED 1612
+#define IDS_STUN_OPEN_INTERNET          1613
+#define IDS_STUN_FULL_CONE_NAT          1614
+#define IDS_STUN_RESTRICTED_CONE_NAT    1615
+#define IDS_STUN_PORT_RESTRICTED_CONE_NAT 1616
+#define IDS_STUN_SYMMETRIC_NAT          1617
+#define IDS_STUN_SYMMETRIC_FIREWALL     1618
+#define IDS_STUN_BLOCKED                1619
+#define IDS_STUN_UNKNOWN_TYPE           1620
+#define IDS_STUN_ENABLE_SPLASH_TIPS     1621
+#define IDS_STUN_NAT_TYPE               1622
+#define IDS_STUN_CONNECTIVITY_ASSESSMENT 1623
+#define IDS_STUN_DIRECT_HIGH_ID         1624
+#define IDS_STUN_TRAVERSA_HIGH_ID       1625
+#define IDS_STUN_HOLE_PUNCHING_REQUIRED 1626
+#define IDS_STUN_RELAY_SERVER_TYPICALLY_NEEDED 1627
+#define IDS_STUN_FIREWALL_CONFIG_MAY_HELP 1628
+#define IDS_STUN_CONNECTION_QUALITY_UNCERTAIN 1629
+#define IDS_STUN_ALL_STUN_CONNECTIONS_FAILED 1630
+#define IDS_STUN_TROUBLESHOOTING_STEPS  1631
+#define IDS_STUN_VERIFY_NETWORK_CONNECTIVITY 1632
+#define IDS_STUN_CHECK_FIREWALL_ALLOWS_UDP 1633
+#define IDS_STUN_TRY_DIFFERENT_STUN_SERVERS 1634
+#define IDS_STUN_VERIFY_DNS_RESOLUTION_WORKING 1635
+#define IDS_STUN_STUN_NAT_DETECTION_COMPLETED 1636
+#define IDS_START_TEST                  1637
+#define IDS_OPEN_FIREWALL               1638
+#define IDS_NAT_TEST                    1639
 #define IDC_ANIMATE1                    2000
 #define IDC_STATUS                      2001
 #define IDC_FILESTATUS                  2002
@@ -2225,6 +2280,8 @@
 #define IDC_BUTTON1                     2899
 #define IDC_LD_LINKGROUP                2900
 #define IDC_LD_BASICGROUP               2901
+#define IDC_BUTTON2                     2901
+#define IDC_OPEN_FIREWALL               2901
 #define IDC_LD_ADVANCEDGROUP            2902
 #define IDC_LD_CLIPBOARDBUT             2903
 #define IDC_LD_SOURCECHE                2904
@@ -2509,6 +2566,9 @@
 #define IDS_PUSH_SMALL_FILE_SIZE        4193
 #define IDS_TRUSTEVERYHASH              4194
 #define IDC_KNOWN2SPLIT_PPGFILES        4195
+#define IDR_HTML1                       4195
+#define IDD_NAT_TEST                    4210
+#define IDI_ICON1                       4214
 #define IDD_PPG_Xtreme                  5000
 #define IDC_13RATIO                     5001
 #define IDC_UPREDUCTION                 5002
@@ -2617,21 +2677,33 @@
 #define IDC_RETRIEVEMTUFROMSOCKET       5105
 #define IDC_ANTILEECHERFINCAN_CHECK     5106
 #define IDS_EMULE_CTRL_DATA             5107
+#define IDC_STUN_GROUP                  5107
 #define IDS_NETWORK_ADAPTER             5108
 #define IDC_CLIENTDETAIL_KAD2           5109
 #define IDC_CLIENTDETAIL_KADCON2        5110
+#define IDC_ENABLE_STUN                 5110
 #define IDC_USE_IPV6                    5111
+#define IDC_STUN_SERVER_LBL             5111
 #define IDC_CLIENT_IPV6                 5112
 #define IDC_STATIC133x2                 5113
+#define IDC_STUN_SERVER                 5113
+#define IDC_TEST_STUN                   5114
+#define IDC_GET_STUN_SERVER             5115
+#define IDC_STUN_TRAVERSAL              5117
+#define IDC_STUN_TRAVERSAL_LLB          5118
+#define IDC_START_TEST                  5121
+#define IDS_STUN_DNS_RESOLUTION_FAILED  15951
+#define IDS_TESTING_STUN_SERVER         15952
+#define IDS_STUN_FINAL_DETECTION_SUMMARY 16122
 #define IDA_ENTER                       32771
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        4195
+#define _APS_NEXT_RESOURCE_VALUE        4216
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         5107
+#define _APS_NEXT_CONTROL_VALUE         5122
 #define _APS_NEXT_SYMED_VALUE           1591
 #endif
 #endif
