@@ -394,8 +394,8 @@ void CStunManager::HandleStunDetectionResult(const std::string& currentPublicIP,
         if (!theApp.IsPortchangeAllowed())
         {
             theApp.OnDisconnectNetwork();
-            return;
         }
+        DoUdpStunDetection();
         if (!theApp.m_UPnPManager.isInitialized())
         {
             LogError(_T("无法连接路由器UPNP服务"));
@@ -436,7 +436,6 @@ void CStunManager::HandleStunDetectionResult(const std::string& currentPublicIP,
             }
         }
 
-        theApp.emuledlg->ShowNotifier(L"正在重新连接...", TBN_NEWVERSION);
         theApp.emuledlg->StartConnection();
         theApp.downloadqueue->ResumeAllDownloads();
         theApp.emuledlg->ShowNotifier(L"正在恢复下载任务...", TBN_NEWVERSION);
