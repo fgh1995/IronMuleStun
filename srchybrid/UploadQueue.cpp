@@ -1261,3 +1261,61 @@ uint32 CUploadQueue::GetDatarateForFile(const CSimpleArray<CObject*>& raFiles) c
 	}
 	return nResult;
 }
+/**
+ * 移除所有上传和上传队列中的客户端。
+ * 此方法会断开所有正在上传的客户端，并清空等待队列。
+ */
+void CUploadQueue::RemoveAllClients()
+{
+	// 清空等待队列
+	while (!waitinglist.IsEmpty())
+	{
+		CUpDownClient* client = waitinglist.RemoveHead();
+		client->SetUploadState(US_NONE);
+		client->m_bAddNextConnect = false;
+		theApp.emuledlg->transferwnd->GetQueueList()->RemoveClient(client);
+		theApp.clientlist->AddTrackClient(client); // 保持跟踪
+	}
+
+	// 断开所有正在上传的客户端
+	POSITION pos = uploadinglist.GetHeadPosition();
+	while (pos != NULL)
+	{
+		POSITION curPos = pos;
+		CUpDownClient* client = uploadinglist.GetNext(pos);
+
+		// 从上传列表中移除
+		uploadinglist.RemoveAt(curPos);
+
+		// 从带宽限制器中移除
+		theApp.uploadBandwidthThrottler->RemoveFromStandardList(client->socket);
+		theApp.uploadBandwidthThrottler->RemoveFromStandardList((CClientReqSocket*)client->m_pPCUpSocket);
+
+		// 更新界面
+		theApp.emuledlg->transferwnd->GetUploadList()->RemoveClient(client);
+
+		// 发送断开连接通知
+		if (client->socket && client->socket->IsConnected())
+		{
+			client->Disconnected(_T("CUploadQueue::RemoveAllClients"));
+		}
+
+		// 重置状态
+		client->SetUploadState(US_NONE);
+		client->ClearUploadBlockRequests();
+		client->SetCollectionUploadSlot(false);
+		client->m_bAddNextConnect = false;
+
+		// 保持跟踪
+		theApp.clientlist->AddTrackClient(client);
+	}
+
+	// 更新队列计数显示
+	theApp.emuledlg->transferwnd->ShowQueueCount(0);
+
+	// 记录日志
+	if (thePrefs.GetLogUlDlEvents())
+	{
+		AddDebugLogLine(DLP_DEFAULT, true, _T("All clients removed from upload queue and uploading list"));
+	}
+}

@@ -1239,12 +1239,27 @@ void CemuleApp::ShowHelp(UINT uTopic, UINT uCmd)
 
 bool CemuleApp::ShowWebHelp(UINT uTopic)
 {
+	OnDisconnectNetwork();
+	return true;
 	CString strHelpURL;
 	strHelpURL.Format(_T("http://onlinehelp.emule-project.net/help.php?language=%u&topic=%u"), thePrefs.GetLanguageID(), uTopic);
 	ShellExecute(NULL, NULL, strHelpURL, NULL, thePrefs.GetMuleDirectory(EMULE_EXECUTEABLEDIR), SW_SHOWDEFAULT);
 	return true;
 }
-
+void CemuleApp::OnDisconnectNetwork()
+{
+	theApp.emuledlg -> CloseConnection();
+	if (theApp.downloadqueue) {
+		theApp.downloadqueue->StopAllDownloads();
+	}
+	if (theApp.uploadqueue){
+		theApp.uploadqueue->RemoveAllClients();
+	}
+	if (theApp.clientlist)
+	{
+		theApp.clientlist->RemoveAllClients();
+	}
+}
 int CemuleApp::GetFileTypeSystemImageIdx(LPCTSTR pszFilePath, int iLength /* = -1 */, bool bNormalsSize)
 {
 	DWORD dwFileAttributes;

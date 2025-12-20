@@ -152,7 +152,7 @@ public:
 
     void	ProcessA4AFClients() const; // ZZ:DownloadManager
 	CDeadSourceList	m_globDeadSourceList;
-
+	void RemoveAllClients();
 protected:
 	void	CleanUpClientList();
 	void	ProcessConnectingClientsList();

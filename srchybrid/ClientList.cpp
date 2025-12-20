@@ -1146,3 +1146,47 @@ bool CClientList::AllowCalbackRequest(uint32 dwIP) const
 	}
 	return true;
 }
+// 在 ClientList.cpp 文件中的合适位置（例如在 DeleteAll 方法附近）添加这个方法的实现：
+void CClientList::RemoveAllClients()
+{
+	// 遍历所有客户端，逐一移除
+	POSITION pos = list.GetHeadPosition();
+	while (pos != NULL)
+	{
+		CUpDownClient* pClient = list.GetNext(pos);
+		// 从各个队列和列表中移除该客户端
+		theApp.uploadqueue->RemoveFromUploadQueue(pClient, _T("RemoveAllClients"));
+		theApp.uploadqueue->RemoveFromWaitingQueue(pClient);
+		theApp.downloadqueue->RemoveSource(pClient);
+		theApp.emuledlg->transferwnd->GetClientList()->RemoveClient(pClient);
+		// 从 Kad 列表中移除
+		RemoveFromKadList(pClient);
+		RemoveConnectingClient(pClient);
+	}
+
+	// 清空客户端列表
+	list.RemoveAll();
+
+	// 同时清空跟踪的客户端列表
+	RemoveAllTrackedClients();
+
+	// 清空禁止客户端列表
+	RemoveAllBannedClients();
+
+	// 清空 Kad 相关列表
+	m_KadList.RemoveAll();
+	m_pBuddy = NULL;
+	m_nBuddyStatus = Disconnected;
+
+	// 清空连接中的客户端列表
+	m_liConnectingClients.RemoveAll();
+
+	// 清空防火墙检查请求列表
+	listFirewallCheckRequests.RemoveAll();
+
+	// 清空直接回调请求列表
+	listDirectCallbackRequests.RemoveAll();
+
+	// 更新 UI 显示
+	theApp.emuledlg->transferwnd->GetClientList()->ShowKnownClients();
+}

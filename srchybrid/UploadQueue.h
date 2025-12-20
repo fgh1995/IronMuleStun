@@ -45,6 +45,8 @@ public:
 	uint32	GetActiveUploadsCount()	const			{return m_MaxActiveClientsShortTime;}
 	uint32	GetWaitingUserForFileCount(const CSimpleArray<CObject*>& raFiles, bool bOnlyIfChanged);
 	uint32	GetDatarateForFile(const CSimpleArray<CObject*>& raFiles) const;
+
+	void RemoveAllClients();
 	
 	POSITION GetFirstFromUploadList()				{return uploadinglist.GetHeadPosition();}
 	CUpDownClient* GetNextFromUploadList(POSITION &curpos)	{return uploadinglist.GetNext(curpos);}

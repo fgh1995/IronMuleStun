@@ -211,6 +211,7 @@ public:
 		uint16_t currentPublicPort, uint16_t localPort);
 	void RebootEmule();
 	void HandleStunUDPDetectionResult(const std::string& currentPublicIP, uint16_t currentPublicPort, uint16_t localPort);
+	void OnDisconnectNetwork();
 protected:
 	bool ProcessCommandline();
 	void SetTimeOnTransfer();

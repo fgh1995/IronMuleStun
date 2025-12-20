@@ -33,10 +33,6 @@ public:
     void HandleStunDetectionResult(const std::string& currentPublicIP,
         uint16_t currentPublicPort, uint16_t localPort);
 
-    // 处理UDP检测结果
-    void HandleStunUDPDetectionResult(const std::string& currentPublicIP,
-        uint16_t currentPublicPort, uint16_t localPort);
-
     // 重启eMule
     void RebootEmule();
 

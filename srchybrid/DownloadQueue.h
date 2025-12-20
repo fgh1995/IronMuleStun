@@ -76,7 +76,7 @@ public:
 	void	AddFileLinkToDownload(class CED2KFileLink* pLink, int cat = 0);
 	void	RemoveFile(CPartFile* toremove);
 	void	DeleteAll();
-
+	CTypedPtrList<CPtrList, CPartFile*>& GetFileList() { return filelist; }
 	int		GetFileCount() const { return filelist.GetCount(); }
 	UINT	GetDownloadingFileCount() const;
 	UINT	GetPausedFileCount() const;
@@ -91,7 +91,11 @@ public:
     void    StartNextFileIfPrefs(int cat);
 	void	StartNextFile(int cat=-1,bool force=false);
 
-	void	RefilterAllComments();	
+	void	RefilterAllComments();
+	void StopAllDownloads();
+
+	void ResumeAllDownloads();
+
 
 	// sources
 #ifdef USE_IP_6 // NEO: IP6 - [IPv6]

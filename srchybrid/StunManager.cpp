@@ -65,7 +65,6 @@ bool CStunManager::Initialize()
     {
         return false;
     }
-
     // 初始化UPNP管理器
     m_pUPnPFinder = new CUPnPImplWrapper();
     if (!theApp.m_UPnPManager.Initialize(2000, thePrefs.GetBindAddrA()))
@@ -85,7 +84,7 @@ bool CStunManager::Initialize()
     // 执行TCP和UDP STUN检测
     bool tcpSuccess = DoTcpStunDetection();
     bool udpSuccess = DoUdpStunDetection();
-
+    theApp.downloadqueue->ResumeAllDownloads();
     return tcpSuccess || udpSuccess;
 }
 
@@ -328,7 +327,6 @@ void CStunManager::CheckStunMapping()
         currentPublicIP, currentPublicPort))
     {
         // 处理检测结果
-        HandleStunUDPDetectionResult(currentPublicIP, currentPublicPort, m_lastStunLocalUDPPort);
     }*/
 
     // 定时检查UDP防火墙状态
@@ -395,10 +393,9 @@ void CStunManager::HandleStunDetectionResult(const std::string& currentPublicIP,
 
         if (!theApp.IsPortchangeAllowed())
         {
-            RebootEmule();
+            theApp.OnDisconnectNetwork();
             return;
         }
-
         if (!theApp.m_UPnPManager.isInitialized())
         {
             LogError(_T("无法连接路由器UPNP服务"));
@@ -441,118 +438,14 @@ void CStunManager::HandleStunDetectionResult(const std::string& currentPublicIP,
 
         theApp.emuledlg->ShowNotifier(L"正在重新连接...", TBN_NEWVERSION);
         theApp.emuledlg->StartConnection();
-
-        // 恢复下载任务
-        int fileCount = theApp.downloadqueue->GetFileCount();
+        theApp.downloadqueue->ResumeAllDownloads();
         theApp.emuledlg->ShowNotifier(L"正在恢复下载任务...", TBN_NEWVERSION);
-
-        for (int i = 0; i < fileCount; i++)
-        {
-            CPartFile* partfile = theApp.downloadqueue->GetFileByIndex(i);
-            if (partfile)
-            {
-                partfile->ResumeFile();
-                LogError(L"已恢复下载：%s", partfile->GetFileName());
-            }
-        }
     }
     else
     {
         // 映射关系稳定
         theApp.QueueLogLineEx(LOG_DEBUG,
             L"TCP端口映射状态正常：本地 %d -> 公网 %s:%d",
-            localPort,
-            CString(currentPublicIP.c_str()), currentPublicPort);
-    }
-}
-
-void CStunManager::HandleStunUDPDetectionResult(const std::string& currentPublicIP,
-    uint16_t currentPublicPort, uint16_t localPort)
-{
-    if (m_lastUDPPublicPort == 0)
-    {
-        theApp.QueueLogLineEx(LOG_WARNING, L"STUN-UDP端口检测异常：未找到有效的公网端口记录");
-        return;
-    }
-
-    // 检查映射关系是否有变化
-    if (currentPublicIP != m_lastUDPPublicIP || currentPublicPort != m_lastUDPPublicPort)
-    {
-        CString changeMsg;
-        changeMsg.Format(_T("检测到UDP端口映射发生变化：\n之前：%s:%d\n现在：%s:%d\n本地端口：%d"),
-            CString(m_lastUDPPublicIP.c_str()), m_lastUDPPublicPort,
-            CString(currentPublicIP.c_str()), currentPublicPort, localPort);
-        LogError(changeMsg);
-        theApp.emuledlg->ShowNotifier(changeMsg, TBN_NEWVERSION);
-        theApp.emuledlg->CloseConnection();
-
-        if (!theApp.IsPortchangeAllowed())
-        {
-            RebootEmule();
-            return;
-        }
-
-        if (!theApp.m_UPnPManager.isInitialized())
-        {
-            LogError(_T("无法连接路由器UPNP服务"));
-        }
-        else
-        {
-            // 清理旧的UDP端口映射
-            if (theApp.m_UPnPManager.DeletePortMapping(thePrefs.lastStunLocalUDPPort, "UDP"))
-            {
-                theApp.QueueLogLineEx(LOG_SUCCESS, L"已清除旧的UDP端口映射（端口:%d）", m_lastStunLocalUDPPort);
-            }
-            else
-            {
-                theApp.QueueLogLineEx(LOG_SUCCESS, L"清理旧的UDP端口映射失败（端口:%d），可能之前没有映射", m_lastStunLocalUDPPort);
-            }
-
-            // 添加新的UDP端口映射
-            if (theApp.m_UPnPManager.AddPortMapping(currentPublicPort, m_lastStunLocalUDPPort, "UDP", "eMule UDP(STUN)"))
-            {
-                theApp.QueueLogLineEx(LOG_SUCCESS, L"UDP端口重新映射成功：%d -> %s:%d",
-                    m_lastStunLocalUDPPort, CString(currentPublicIP.c_str()), currentPublicPort);
-
-                // 保存最后一次STUN穿透发起的本地端口
-                thePrefs.lastStunLocalUDPPort = m_lastStunLocalUDPPort;
-                theApp.QueueLogLineEx(LOG_SUCCESS, L"已将UDP监听端口更新为 %d", currentPublicPort);
-                thePrefs.udpport = currentPublicPort;
-                thePrefs.Save();
-
-                // 保存UDP公网IP端口用于后续STUN检测
-                m_lastUDPPublicIP = currentPublicIP;
-                m_lastUDPPublicPort = currentPublicPort;
-            }
-            else
-            {
-                LogError(L"UDP端口重新映射失败：%d -> %s:%d",
-                    m_lastStunLocalUDPPort, CString(currentPublicIP.c_str()), currentPublicPort);
-            }
-        }
-
-        theApp.emuledlg->ShowNotifier(L"正在重新连接...", TBN_NEWVERSION);
-        theApp.emuledlg->StartConnection();
-
-        // 恢复下载任务
-        int fileCount = theApp.downloadqueue->GetFileCount();
-        theApp.emuledlg->ShowNotifier(L"正在恢复下载任务...", TBN_NEWVERSION);
-
-        for (int i = 0; i < fileCount; i++)
-        {
-            CPartFile* partfile = theApp.downloadqueue->GetFileByIndex(i);
-            if (partfile)
-            {
-                partfile->ResumeFile();
-                LogError(L"已恢复下载：%s", partfile->GetFileName());
-            }
-        }
-    }
-    else
-    {
-        // 映射关系稳定
-        theApp.QueueLogLineEx(LOG_DEBUG,
-            L"UDP端口映射状态正常：本地 %d -> 公网 %s:%d",
             localPort,
             CString(currentPublicIP.c_str()), currentPublicPort);
     }

@@ -2042,3 +2042,65 @@ void CDownloadQueue::RefilterAllComments(){
 		cur_file->RefilterFileComments();
 	}
 }
+void CDownloadQueue::StopAllDownloads()
+{
+	LogError(_T("停止下载文件:GetSize %i"), filelist.GetSize());
+
+	// 先收集所有文件，再统一停止
+	CTypedPtrList<CPtrList, CPartFile*> filesToStop;
+
+	POSITION pos = filelist.GetHeadPosition();
+	while (pos)
+	{
+		CPartFile* pFile = filelist.GetNext(pos);
+		if (pFile)
+		{
+			filesToStop.AddTail(pFile);
+		}
+	}
+
+	// 现在遍历并停止所有文件
+	pos = filesToStop.GetHeadPosition();
+	while (pos)
+	{
+		CPartFile* pFile = filesToStop.GetNext(pos);
+		LogError(_T("停止下载文件: %s"), pFile->GetFileName());
+		pFile->StopFile();
+	}
+
+	// 清空平均速度列表
+	avarage_dr_list.RemoveAll();
+
+	// 停止UDP请求
+	StopUDPRequests();
+
+	// 清空本地服务器请求队列
+	m_localServerReqQueue.RemoveAll();
+}
+
+void CDownloadQueue::ResumeAllDownloads()
+{
+	LogError(_T("恢复下载文件:GetSize %i"), filelist.GetSize());
+
+	// 先收集所有文件，再统一恢复
+	CTypedPtrList<CPtrList, CPartFile*> filesToStart;
+
+	POSITION pos = filelist.GetHeadPosition();
+	while (pos)
+	{
+		CPartFile* pFile = filelist.GetNext(pos);
+		if (pFile)
+		{
+			filesToStart.AddTail(pFile);
+		}
+	}
+
+	// 现在遍历并恢复所有文件
+	pos = filesToStart.GetHeadPosition();
+	while (pos)
+	{
+		CPartFile* pFile = filesToStart.GetNext(pos);
+		LogError(_T("恢复下载文件: %s"), pFile->GetFileName());
+		pFile->ResumeFile();
+	}
+}
